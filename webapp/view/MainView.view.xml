@@ -1,0 +1,91 @@
+<mvc:View controllerName="dksh.connectclient.headerblockorder.controller.MainView" xmlns:html="http://www.w3.org/1999/xhtml" height="100%"
+	xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core" xmlns:layout="sap.ui.layout" xmlns="sap.m" xmlns:f="sap.f"
+	xmlns:fb="sap.ui.comp.filterbar" xmlns:vm="sap.ui.comp.variants">
+	<!--	<f:DynamicPage headerExpanded="{/headerExpanded}" class="sapUiSizeCompact" busy="{settings/isPageBusy}">
+		<f:header>
+			<f:DynamicPageHeader pinnable="false">
+				<f:content>
+					<core:Fragment fragmentName="dksh.connectclient.headerblockorder.view.Fragments.SalesFilterFrag" type="XML"/>
+					<OverflowToolbar id="otb1" class="dkshToolbarStyle customTitle">
+						<Title text="{i18n>pendingRequests} ({=${MockData>/workBoxDtos}.length})" class="sapUiSmallMarginBegin"/>
+						<ToolbarSpacer/>
+						<Button icon="sap-icon://sort" type="Transparent" tooltip="{i18n>Sort}" press="onSortPress"/>
+						<Button type="Transparent" text="{i18n>ExpandAll}" press="onExpandAll" enabled="{oButtonModel>/expandButtonShow}"/>
+						<Button type="Transparent" text="{i18n>CollapseAll}" press="onCollapseAll" enabled="{oButtonModel>/expandButtonShow}"/>
+						<SearchField width="30%" id="idHeaderSearch" liveChange="onSearchValueForHeader" search="onSearchValueForHeader" placeholder="{i18n>Search}"></SearchField>
+						<Button icon="sap-icon://settings" type="Transparent" tooltip="{i18n>ItemPersonalization}" press="onPressPersonalization"/>
+						<Button icon="sap-icon://refresh" type="Emphasized" tooltip="{i18n>Refresh}" press="onPressRefresh"/>
+					</OverflowToolbar>
+				</f:content>
+			</f:DynamicPageHeader>
+		</f:header>
+		<f:content>
+			<List id="idList" growing="true" growingThreshold="10" growingScrollToLoad="false" enableBusyIndicator="true"
+				items="{path: 'MockData>/workBoxDtos', templateShareable: true, sorter: {path: 'SaleOrder'} }" noDataText="No pending release found"
+				class="sapUiSizeCompact">
+				<items>
+					<CustomListItem>
+						<Panel expandable="true" class="hideContent" expanded="{MockData>expanded}" expand="onExpand">
+							<headerToolbar>
+								<OverflowToolbar>
+									<Label text="{i18n>ApproveBlockSalesOrder}"/>
+									<Label text="{MockData>SaleOrder}" design="Bold"/>
+									<Label text="{i18n>descSet}"/>
+									<Label text="{MockData>DescSet}" design="Bold"/>
+									<Label text="{i18n>level}"/>
+									<Label text="{MockData>Level}" design="Bold"/>
+									<ToolbarSpacer/>
+									<Button icon="sap-icon://accept" type="Accept" tooltip="{i18n>Approve}" press="onHeaderApprovePress" class="dkshAcceptBtnStyle"
+										enabled="true"/>
+								</OverflowToolbar>
+							</headerToolbar>
+							<content><core:Fragment fragmentName="dksh.connectclient.headerblockorder.view.Fragments.SaleDocDetail" type="XML"/></content>
+						</Panel>
+					</CustomListItem>
+				</items>
+			</List>
+		</f:content>
+		<f:footer>
+			<OverflowToolbar></OverflowToolbar>
+		</f:footer>
+	</f:DynamicPage>-->
+	<Page showHeader="false" showFooter="false" class="sapUiSizeCompact">
+		<content>
+			<core:Fragment fragmentName="dksh.connectclient.headerblockorder.view.Fragments.SalesFilterFrag" type="XML"/>
+			<OverflowToolbar id="otb1" class="dkshToolbarStyle customTitle">
+				<Title text="{i18n>pendingRequests} ({=${MockData>/workBoxDtos}.length})" class="sapUiSmallMarginBegin"/>
+				<ToolbarSpacer/>
+				<Button icon="sap-icon://sort" type="Transparent" tooltip="{i18n>Sort}" press="onSortPress"/>
+				<Button type="Transparent" text="{i18n>ExpandAll}" press="onExpandAll" enabled="{oButtonModel>/expandButtonShow}"/>
+				<Button type="Transparent" text="{i18n>CollapseAll}" press="onCollapseAll" enabled="{oButtonModel>/expandButtonShow}"/>
+				<SearchField width="30%" id="idHeaderSearch" liveChange="onSearchValueForHeader" search="onSearchValueForHeader" placeholder="{i18n>Search}"></SearchField>
+				<Button icon="sap-icon://settings" type="Transparent" tooltip="{i18n>ItemPersonalization}" press="onPressPersonalization"/>
+				<Button icon="sap-icon://refresh" type="Emphasized" tooltip="{i18n>Refresh}" press="onPressRefresh"/>
+			</OverflowToolbar>
+			<List id="idList" growing="true" growingThreshold="10" growingScrollToLoad="false" enableBusyIndicator="true"
+				items="{path: 'MockData>/workBoxDtos', templateShareable: true, sorter: {path: 'SaleOrder'} }" noDataText="No pending release found"
+				class="sapUiSizeCompact">
+				<items>
+					<CustomListItem>
+						<Panel expandable="true" class="hideContent" expanded="{MockData>expanded}" expand="onExpand">
+							<headerToolbar>
+								<OverflowToolbar>
+									<Label text="{i18n>ApproveBlockSalesOrder}"/>
+									<Label text="{MockData>SaleOrder}" design="Bold"/>
+									<Label text="{i18n>descSet}"/>
+									<Label text="{MockData>DescSet}" design="Bold"/>
+									<Label text="{i18n>level}"/>
+									<Label text="{MockData>Level}" design="Bold"/>
+									<ToolbarSpacer/>
+									<Button icon="sap-icon://accept" type="Accept" tooltip="{i18n>Approve}" press="onHeaderApprovePress" class="dkshAcceptBtnStyle"
+										enabled="true"/>
+								</OverflowToolbar>
+							</headerToolbar>
+							<content><core:Fragment fragmentName="dksh.connectclient.headerblockorder.view.Fragments.SaleDocDetail" type="XML"/></content>
+						</Panel>
+					</CustomListItem>
+				</items>
+			</List>
+		</content>
+	</Page>
+</mvc:View>
