@@ -2,8 +2,10 @@ sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/UIComponent",
 	"dksh/connectclient/headerblockorder/formatter/formatter",
-	"sap/ui/model/json/JSONModel"
-], function (Controller, UIComponent, formatter, JSONModel) {
+	"sap/ui/model/json/JSONModel",
+	"sap/ui/model/Filter",
+	"sap/ui/model/FilterOperator"
+], function (Controller, UIComponent, formatter, JSONModel, Filter, FilterOperator) {
 	"use strict";
 
 	return Controller.extend("dksh.connectclient.headerblockorder.controller.BaseController", {
@@ -30,6 +32,29 @@ sap.ui.define([
 				return sText;
 			}
 			return this.getOwnerComponent().getModel("i18n").getResourceBundle().getText(sText);
+		},
+		setBindingFilter: function (aFilterProperties, sFilterValue, oBinding) {
+			var aFilters = [];
+
+			for (var indx in aFilterProperties) {
+				var sProperty = aFilterProperties[indx];
+				if (typeof (oBinding.oList[0][sProperty]) === "string") {
+					aFilters.push(new Filter(sProperty, FilterOperator.Contains, sFilterValue));
+				} else {
+					aFilters.push(new Filter(sProperty, FilterOperator.EQ, +sFilterValue));
+				}
+			}
+			return aFilters;
+		},
+		setODataFilter: function (aProperties, oItemRow) {
+			var aFilters = [];
+
+			for (var indx in aProperties) {
+				if (oItemRow[aProperties[indx]]) {
+					aFilters.push(new Filter(aProperties[indx], FilterOperator.EQ, oItemRow[aProperties[indx]]));
+				}
+			}
+			return aFilters;
 		},
 		displayWarning: function () {
 
