@@ -18,7 +18,7 @@
 				<Button icon="sap-icon://refresh" type="Emphasized" tooltip="{i18n>Refresh}" press="onPressRefresh"/>
 			</OverflowToolbar>
 			<List id="idList" growing="true" growingScrollToLoad="true"
-				items="{path: 'HeaderBlockModel>/data', templateShareable: false, sorter : { path: 'postingDate', descending : 'true' } }"
+				items="{path: 'HeaderBlockModel>/data', templateShareable: false, sorter : [{ path: 'creationDate', descending: true }, { path: 'salesOrderNum', descending: true }] }"
 				noDataText="No pending release found" class="sapUiSizeCompact">
 				<items>
 					<CustomListItem>
