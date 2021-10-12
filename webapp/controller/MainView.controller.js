@@ -9,6 +9,7 @@ sap.ui.define([
 	"sap/m/MessageToast"
 ], function (BaseController, JSONModel, Fragment, Sorter, Filter, FilterOperator, MessageBox, MessageToast) {
 	"use strict";
+	var sResponsivePaddingClasses = "sapUiResponsivePadding--header sapUiResponsivePadding--content sapUiResponsivePadding--footer";
 
 	return BaseController.extend("dksh.connectclient.headerblockorder.controller.MainView", {
 		onInit: function () {
@@ -246,8 +247,20 @@ sap.ui.define([
 					this._displayError(oLoadDataModel.getData().message, "SubmitFailedMessage").bind(this);
 					return;
 				}
-				this.formatter.fetchSaleOrder.call(this);
-				this._getTable("idList").setBusy(false);
+				var fnCloseApprove = function (oAction) {
+					if (oAction === "OK") {
+						this._getTable("idList").setBusy(false);
+						this.formatter.fetchSaleOrder.call(this);
+					}
+				}.bind(this);
+				MessageBox.show(this.getText("SubmitSuccessMessage"), {
+					icon: MessageBox.Icon.INFORMATION,
+					title: "Information",
+					actions: [MessageBox.Action.OK],
+					onClose: fnCloseApprove,
+					initialFocus: MessageBox.Action.OK,
+					styleClass: sResponsivePaddingClasses
+				});
 				MessageBox.information(this.getText("SubmitSuccessMessage"));
 			}.bind(this)).catch(function () {
 				this._displayError.bind(this);
