@@ -55,6 +55,15 @@
 			"async": true,
 			"id": "App"
 		},
+		"resourceRoots": {
+			"anotherComponent": "./itemblockorder"
+		},
+		"componentUsages": {
+			"reuseAnotherComponent": {
+				"name": "dksh.connectclient.itemblockorder",
+				"lazy": false
+			}
+		},
 		"dependencies": {
 			"minUI5Version": "1.30",
 			"libs": {
@@ -93,22 +102,22 @@
 				"type": "sap.ui.model.resource.ResourceModel",
 				"uri": "i18n/i18n.properties"
 			},
-			"ValueHelp_SoldToParty": {
+			"_SoldToParty": {
 				"type": "sap.ui.model.odata.v2.ODataModel",
 				"settings": {
 					"defaultOperationMode": "Server",
-					"defaultBindingMode": "TwoWay",
+					"defaultBindingMode": "OneWay",
 					"defaultCountMode": "None",
 					"useBatch": false
 				},
 				"dataSource": "ZDKSH_CC_DAC_SOLDTOPARTY_SRV",
 				"preload": true
 			},
-			"ValueHelp": {
+			"": {
 				"type": "sap.ui.model.odata.v2.ODataModel",
 				"settings": {
 					"defaultOperationMode": "Server",
-					"defaultBindingMode": "OneWay",
+					"defaultBindingMode": "TwoWay",
 					"defaultCountMode": "None",
 					"useBatch": false
 				},

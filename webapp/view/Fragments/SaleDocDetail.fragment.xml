@@ -1,6 +1,5 @@
 <core:FragmentDefinition xmlns:f="sap.ui.layout.form" xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:l="sap.ui.layout"
-	xmlns:grid="sap.ui.layout.cssgrid" xmlns:fb="sap.ui.comp.filterbar" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
-	xmlns:smartTable="sap.ui.comp.smarttable">
+	xmlns:grid="sap.ui.layout.cssgrid">
 	<VBox fitContainer="true" class="sapUiSmallMargin">
 		<f:Form editable="true">
 			<f:layout>
@@ -12,17 +11,20 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>SalesDocument}">
 							<f:fields>
-								<Text text="{MockData>SaleOrder}"/>
+								<Text text="{HeaderBlockModel>salesOrderNum}" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>OrderType}">
 							<f:fields>
-								<Text text="{MockData>OrderType}"/>
+								<Text text="{HeaderBlockModel>orderType}" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>DeliveryBlock}">
 							<f:fields>
-								<Text text="{MockData>DeliveryBlock}"/>
+								<!--<Text text="{HeaderBlockModel>deliveryBlockCode} ({HeaderBlockModel>deliveryBlockCodeText})" class="sapUiTinyMarginBegin"/>-->
+								<Text
+									text="{parts:[{path:'HeaderBlockModel>deliveryBlockCode'},{path:'HeaderBlockModel>deliveryBlockCodeText'}],formatter:'.formatter.concateText'}"
+									class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 					</f:formElements>
@@ -31,12 +33,12 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>SalesDocDate}">
 							<f:fields>
-								<Text text="{MockData>SaleOrderDate}"/>
+								<Text text="{path: 'HeaderBlockModel>salesOrderDate', formatter:'.formatter.dateFormatter'}" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>CustomerPONo}">
 							<f:fields>
-								<Text text="{MockData>CustomerPONumber}"/>
+								<Text text="{HeaderBlockModel>customerPo}" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 					</f:formElements>
@@ -45,12 +47,15 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>distributionChnlFilter}">
 							<f:fields>
-								<Text text="{MockData>DistributionChannel}"/>
+								<!--<Text text="{HeaderBlockModel>distributionChannel}" class="sapUiTinyMarginBegin"/>-->
+								<Text
+									text="{parts:[{path:'HeaderBlockModel>distributionChannel'},{path:'HeaderBlockModel>distrChanText'}],formatter:'.formatter.concateText'}"
+									class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>SoldToParty}">
 							<f:fields>
-								<Text text="{MockData>SoldToParty}"/>
+								<Text text="{HeaderBlockModel>soldToParty} ({HeaderBlockModel>soldToPartyText})" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 					</f:formElements>
@@ -59,31 +64,35 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>CreditStatus}">
 							<f:fields>
-								<Text text="{MockData>CreditStatus}"/>
+								<Link text="{HeaderBlockModel>creditBlock}" press="handleCreditBlockPress($event, ${HeaderBlockModel>salesOrderNum})"
+									class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>ShipToParty}">
 							<f:fields>
-								<Text text="{MockData>ShipToParty}"/>
+								<Text text="{HeaderBlockModel>shipToParty} ({HeaderBlockModel>shipToPartyText})" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 					</f:formElements>
 				</f:FormContainer>
 			</f:formContainers>
 		</f:Form>
-		<Table inset="false" fixedLayout="true" items="{path: 'MockData>/workBoxDtos/0/Items', templateShareable: true}" mode="None"
-			selectionChange="onChangeSelectionItem" backgroundDesign="Solid">
+		<!--<Table inset="false" fixedLayout="true" items="{path: 'HeaderBlockModel>/salesDocItemList', templateShareable: false}"-->
+		<!--	mode="MultiSelect" selectionChange="onChangeSelectionItem" backgroundDesign="Solid">-->
+		<Table inset="false" fixedLayout="true" growing="true" growingThreshold="20"
+			items="{path: 'HeaderBlockModel>salesDocItemList', templateShareable: false}" mode="None" backgroundDesign="Solid">
 			<headerToolbar>
 				<OverflowToolbar>
 					<ToolbarSpacer/>
-					<SearchField width="30%" liveChange="onItemTableFreeSearch"/>
+					<SearchField width="30%" liveChange="onItemTableFreeSearch"></SearchField>
 				</OverflowToolbar>
 			</headerToolbar>
 			<columns>
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left" class="{'version-modal-header': condition, 'failure': !condition}">
 					<HBox>
 						<Label design="Bold" text="{i18n>ItemNo}" tooltip="{i18n>ItemNo}"/>
-						<Button icon="sap-icon://drill-down" type="Transparent" tooltip="{i18n>Sort}" press="onDetailTableSortPress" class="dkshAcceptBtnStyle"/>
+						<Button icon="sap-icon://drill-down" type="Transparent" tooltip="{i18n>Sort}" press="onDetailTableSortPress($event, 'salesItemOrderNo')"
+							class="dkshAcceptBtnStyle"/>
 					</HBox>
 				</Column>
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left">
@@ -92,7 +101,7 @@
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Right">
 					<Label design="Bold" text="{i18n>Quantity}" tooltip="{i18n>Quantity}"/>
 				</Column>
-				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left">
+				<Column demandPopin="true" width="4em" minScreenWidth="Tablet" hAlign="Left">
 					<Label design="Bold" text="{i18n>UoM}" tooltip="{i18n>tltpUom}"/>
 				</Column>
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Right">
@@ -104,7 +113,8 @@
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Right">
 					<HBox alignItems="End">
 						<Label design="Bold" text="{i18n>Amount}" tooltip="{i18n>Amount}" textAlign="Right"/>
-						<Button icon="sap-icon://drill-down" type="Transparent" tooltip="{i18n>Sort}" press="onDetailTableSortPress" class="dkshAcceptBtnStyle"/>
+						<Button icon="sap-icon://drill-down" type="Transparent" tooltip="{i18n>Sort}" press="onDetailTableSortPress($event, 'netWorth')"
+							class="dkshAcceptBtnStyle"/>
 					</HBox>
 				</Column>
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left">
@@ -119,6 +129,18 @@
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left">
 					<Label design="Bold" text="{i18n>MaterialGrp4}" tooltip="{i18n>MaterialGroup4}"/>
 				</Column>
+				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left" visible="false">
+					<Label design="Bold" text="{i18n>Disc1}" tooltip="{i18n>Disc1}"/>
+				</Column>
+				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left" visible="false">
+					<Label design="Bold" text="{i18n>Disc2}" tooltip="{i18n>Disc2}"/>
+				</Column>
+				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left" visible="false">
+					<Label design="Bold" text="{i18n>Disc3}" tooltip="{i18n>Disc3}"/>
+				</Column>
+				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left" visible="false">
+					<Label design="Bold" text="{i18n>Disc4}" tooltip="{i18n>Disc4}"/>
+				</Column>
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left">
 					<Label design="Bold" text="{i18n>ItemDlvBlock}" tooltip="{i18n>ItemDlvBlock}"/>
 				</Column>
@@ -128,101 +150,83 @@
 				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left">
 					<Label design="Bold" text="{i18n>oldMatCodeCol}" tooltip="{i18n>oldMatCodeColTooltip}"/>
 				</Column>
-				<!--			<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left">
-				<Label design="Bold" text="{i18n>ItemStatus}" tooltip="{i18n>oldMatCodeColTooltip}"/>
-			</Column>-->
-			</columns>
-			<items>
-				<ColumnListItem >
-					<!--				<customData>
-					<core:CustomData key="stockBlock" value="{path: 'SalesHeaderModel>itemStockBlock', formatter:'.formatter.setStockBlock'}" writeToDom="true"></core:CustomData>
-					<core:CustomData key="visibility" value="{path: 'SalesHeaderModel>visiblity', formatter:'.formatter.setBlurVisibility'}" writeToDom="true"></core:CustomData>
-				</customData>-->
-					<cells>
-						<Text text="{MockData>ItemNo}"/>
-						<Text text="{MockData>Material}"/>
-						<Text text="{MockData>Quantity}"/>
-						<Text text="{MockData>UoM}"/>
-						<Text text="{MockData>UnitPrice}"/>
-						<Text text="{MockData>ListPrice}"/>
-						<Text text="{MockData>Amount}"/>
-						<Text text="{MockData>StorageLoc}"/>
-						<Text text="{MockData>BatchNo}"/>
-						<Text text="{MockData>MaterialGrp}"/>
-						<Text text="{MockData>MaterialGrp4}"/>
-						<Text text="{MockData>ItemDeliveryBlock}"/>
-						<Text text="{MockData>ItemCategory}"/>
-						<Text text="{MockData>OldmaterialCode}"/>
-						<!--					<Text text="{MockData>Status}"/>-->
-						<!--					<HBox>
-						<ObjectStatus text="{SalesHeaderModel>salesItemOrderNo}"
-							icon="{path: 'SalesHeaderModel>acceptOrReject', formatter:'.formatter.setMarkIcon'}"
-							state="{path: 'SalesHeaderModel>acceptOrReject', formatter:'.formatter.setMarkType'}"/>
-					</HBox>
-					<VBox>
-						<Text
-							text=" {parts:[{path:'SalesHeaderModel>shortText'},{path:'SalesHeaderModel>sapMaterialNum'}],formatter:'.formatter.concatenateMaterial'}"
-							visible="{= ${SalesHeaderModel>editMaterial} ? false : true }"/>
-						<Input value="{SalesHeaderModel>sapMaterialNum}" change="onChangeMaterial" textAlign="Left"
-							visible="{= ${SalesHeaderModel>editMaterial} ? true : false }" placeholder="{i18n>tltpMaterial}"/>
-						<Text text="{SalesHeaderModel>shortText}" textAlign="Left" visible="{= ${SalesHeaderModel>editMaterial} ? true : false }"/>
-					</VBox>
-					<Input value="{SalesHeaderModel>orderedQtySales}" liveChange="onChangeQuantity" type="Number" textAlign="Right"
-						enabled="{SalesHeaderModel>editQty}" placeholder="{i18n>tltpQty}"/>
-					<VBox>
-						<Input value="{SalesHeaderModel>salesUnit}" textAlign="Left" visible="{= ${SalesHeaderModel>editUoM} ? false : true }" enabled="false"/>
-						<Input value="{SalesHeaderModel>salesUnit}" showValueHelp="false" valueHelpRequest="valueHelpEditUOM" valueHelpOnly="true"
-							visible="{SalesHeaderModel>editUoM}"/>
-					</VBox>
-					<Input value="{SalesHeaderModel>netPrice}" type="Number" textAlign="Right" enabled="{SalesHeaderModel>editUnitPrice}"
-						placeholder="{i18n>tltpPrice}" liveChange="onChangeUnitPrice"/>
-					<Text text="{SalesHeaderModel>splPrice}" textAlign="Right"/>
-					<Text
-						text="{parts:[{path:'SalesHeaderModel>netPrice'},{path:'SalesHeaderModel>orderedQtySales'},{path:'SalesHeaderModel>docCurrency'}],formatter:'.formatter.concatenateStrings'}"
-						textAlign="Right"/>
-					<VBox>
-						<Input value="{SalesHeaderModel>storageLoc}" enabled="false" visible="{= ${SalesHeaderModel>editSloc} ? false : true }"/>
-						<Input value="{SalesHeaderModel>storageLoc}" showValueHelp="true" valueHelpRequest="valueHelpEditSLoc" valueHelpOnly="true"
-							visible="{SalesHeaderModel>editSloc}" enabled="{SalesHeaderModel>editSloc}"/>
-					</VBox>
-					<VBox>
-						<Input value="{SalesHeaderModel>batchNum}" enabled="false" visible="{= ${SalesHeaderModel>editBatch} ? false : true }"/>
-						<Input value="{SalesHeaderModel>batchNum}" showValueHelp="true" valueHelpRequest="valueHelpEditBatch" valueHelpOnly="true"
-							visible="{SalesHeaderModel>editBatch}" enabled="{SalesHeaderModel>editBatch}"/>
-					</VBox>
-					<Text text="{SalesHeaderModel>materialGroup}" textAlign="Left"/>
-					<Text text="{SalesHeaderModel>materialGroup4}" textAlign="Left"/>
-					<Text
-						text="{parts:[{path:'SalesHeaderModel>itemDlvBlockText'},{path:'SalesHeaderModel>itemDlvBlock'}],formatter:'.formatter.concatenateMaterial'}"
-						textAlign="Left"/>
-					<Text
-						text="{parts:[{path:'SalesHeaderModel>itemCategText'},{path:'SalesHeaderModel>itemCategory'}],formatter:'.formatter.concatenateMaterial'}"
-						textAlign="Left"/>
-					<Text text="{SalesHeaderModel>oldMatCode}" textAlign="Left"/>
-					<ObjectStatus text="{SalesHeaderModel>itemStagingStatus}"
-						state="{parts:[{path:'SalesHeaderModel>itemStagingStatus'}],formatter:'.formatter.status'}"/>-->
-					</cells>
-				</ColumnListItem>
-			</items>
-		</Table>
-		<!--	<smartTable:SmartTable id="ID" entitySet="tableSet" smartFilterId="smartFilterBar" tableType="ResponsiveTable" useExportToExcel="false"
-		tableBindingPath="{MockData>/Items}" beforeExport="onBeforeExport" useVariantManagement="false" useTablePersonalisation="true" header=""
-		showRowCount="false" persistencyKey="SmartTableAnalytical_Explored" enableAutoBinding="true" demandPopin="true"
-		class="sapUiResponsiveContentPadding" backgroundDesign="Solid">
-		<Table inset="false" fixedLayout="true">
-			<columns>
-				<Column id="ItemNo" hAlign="Left">\
-					<Label design="Bold" text="Item No."/>
+				<Column demandPopin="true" minScreenWidth="Tablet" hAlign="Left">
+					<Label design="Bold" text="{i18n>ItemStatus}" tooltip="{i18n>oldMatCodeColTooltip}"/>
 				</Column>
 			</columns>
 			<items>
 				<ColumnListItem>
 					<cells>
-						<Text text="{MockData>ItemNo}"/>
-					</cells>
+						<!-- Item No -->
+						<HBox>
+							<Text text="{HeaderBlockModel>salesItemOrderNo}"/>
+						</HBox>
+						<!-- Material -->
+						<VBox>
+							<Text text=" {parts:['HeaderBlockModel>sapMaterialNum','HeaderBlockModel>shortText'],formatter:'.formatter.concateText'}"/>
+							<!--<Text text=" {parts:['HeaderBlockModel>sapMaterialNum','HeaderBlockModel>shortText'],formatter:'.formatter.concateText'}"-->
+							<!--	visible="{= !${HeaderBlockModel>editMaterial}}"/>-->
+							<!--<Input value="{HeaderBlockModel>sapMaterialNum}" change="onChangeItemValue($event, 'Material')" textAlign="Left" maxLength="9"-->
+							<!--	visible="{= ${HeaderBlockModel>editMaterial}}" placeholder="{i18n>tltpMaterial}"/>-->
+							<!--<Text text="{HeaderBlockModel>shortText}" textAlign="Left" visible="{= ${HeaderBlockModel>editMaterial}}"-->
+							<!--	tooltip="{HeaderBlockModel>shortText}"/>-->
+						</VBox>
+						<!-- Order Qty Sales -->
+						<Input value="{HeaderBlockModel>orderedQtySales}" change="onChangeItemValue($event, 'orderQty')" textAlign="Right" enabled="false"
+							placeholder="{i18n>tltpQty}"/>
+						<!-- salesUnit -->
+						<VBox>
+							<Text text="{HeaderBlockModel>salesUnit}" textAlign="Left"/>
+						</VBox>
+						<!-- Net Price -->
+						<Input value="{HeaderBlockModel>netPrice}" textAlign="Right" enabled="false" placeholder="{i18n>tltpPrice}"/>
+						<!-- Spl Price -->
+						<Text text="{HeaderBlockModel>splPrice}" textAlign="Right"/>
+						<!-- Net Price & Order Qty Sales & Doc Currency -->
+						<Text text="{HeaderBlockModel>netWorth} ({HeaderBlockModel>docCurrency})" textAlign="Right"/>
+						<!-- Storage Location -->
+						<!--<VBox>-->
+						<!--	<Input value="{HeaderBlockModel>storageLoc}" tooltip="{HeaderBlockModel>storageLoc}" showValueHelp="true"-->
+						<!--		valueHelpRequest="ValueHelpRequestItem($event, 'StorageLocation', '/SearchHelp_StorageLocationSet')" valueHelpOnly="true"-->
+						<!--		enabled="{= ${HeaderBlockModel>editSLoc}}"/>-->
+						<!--</VBox>-->
+						<VBox>
+							<Input value="{HeaderBlockModel>storageLoc}" tooltip="{HeaderBlockModel>storageLoc}" showValueHelp="true" valueHelpOnly="true"
+								enabled="false"/>
+						</VBox>
+						<!-- Batch Num -->
+						<VBox>
+							<Input value="{HeaderBlockModel>batchNum}" tooltip="{HeaderBlockModel>batchNum}" showValueHelp="true" valueHelpOnly="true" enabled="false"/>
+							<!--<Input value="{HeaderBlockModel>batchNum}" tooltip="{HeaderBlockModel>batchNum}" showValueHelp="true"-->
+							<!--	valueHelpRequest="valueHelpRequest($event, 'BatchNo', 'BatchNo', '', false)" valueHelpOnly="true"-->
+							<!--	enabled="{= ${HeaderBlockModel>editBatchNo}}"/>-->
+						</VBox>
+						<!-- Material Group -->
+						<Text text="{HeaderBlockModel>materialGroup}" textAlign="Left"/>
+						<!-- Material Group 4 -->
+						<Text text="{HeaderBlockModel>materialGroup4}" textAlign="Left"/>
+						<!-- Discount 1 -->
+						<Text text="{HeaderBlockModel>disc1}" textAlign="Left"/>
+						<!-- Discount 2 -->
+						<Text text="{HeaderBlockModel>disc2}" textAlign="Left"/>
+						<!-- Discount 3 -->
+						<Text text="{HeaderBlockModel>disc3}" textAlign="Left"/>
+						<!-- Discount 4 -->
+						<Text text="{HeaderBlockModel>disc4}" textAlign="Left"/>
+						<!-- Item Delivery Block -->
+						<Text text="{parts:['HeaderBlockModel>itemDlvBlock','HeaderBlockModel>itemDlvBlockText'] ,formatter:'.formatter.concateText'}"
+							textAlign="Left"/>
+						<!-- Item Category -->
+						<Text text="{parts:['HeaderBlockModel>itemCategory','HeaderBlockModel>itemCategText'] ,formatter:'.formatter.concateText'}" textAlign="Left"/>
+						<!-- Old Material Code -->
+						<Text text="{HeaderBlockModel>oldMatCode}" textAlign="Left"/>
+						<!-- Item Staging Status -->
+						<ObjectStatus text="{HeaderBlockModel>itemStagingStatus}"
+							state="{parts:['HeaderBlockModel>itemStagingStatus'],formatter:'.formatter.status'}"/></cells>
+					<!--<ObjectStatus text="{HeaderBlockModel>itemStagingStatus}"-->
+					<!--	state="{= ${HeaderBlockModel>acceptOrReject} === 'A' ? 'Success' : ${HeaderBlockModel>acceptOrReject} === 'R' ? 'Error' : 'None' }"/></cells>-->
 				</ColumnListItem>
 			</items>
 		</Table>
-	</smartTable:SmartTable>-->
 	</VBox>
 </core:FragmentDefinition>
