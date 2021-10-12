@@ -80,7 +80,7 @@
 		<!--<Table inset="false" fixedLayout="true" items="{path: 'HeaderBlockModel>/salesDocItemList', templateShareable: false}"-->
 		<!--	mode="MultiSelect" selectionChange="onChangeSelectionItem" backgroundDesign="Solid">-->
 		<Table inset="false" fixedLayout="true" growing="true" growingThreshold="20"
-			items="{path: 'HeaderBlockModel>salesDocItemList', templateShareable: false}" mode="MultiSelect" selectionChange="onChangeSelectionItem"
+			items="{path: 'HeaderBlockModel>salesDocItemList', templateShareable: false}" mode="None" selectionChange="onChangeSelectionItem"
 			backgroundDesign="Solid">
 			<headerToolbar>
 				<OverflowToolbar>
