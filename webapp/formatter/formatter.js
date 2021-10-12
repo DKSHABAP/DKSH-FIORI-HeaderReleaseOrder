@@ -1,52 +1,25 @@
-// jQuery.sap.declare("com.dkhs.util.Formatter");
-
-// com.dkhs.util.formatter = {
-
-// 	fn_panelClass: function(type){
-// 		return "hideContent";
-// 	}
-// };
-// });
-
-sap.ui.define(["sap/ui/model/json/JSONModel"], function (JSONModel) {
+sap.ui.define([
+	"sap/ui/model/json/JSONModel",
+	"sap/m/MessageBox",
+	"sap/m/MessageToast",
+	"sap/ui/core/message/MessageManager"
+], function (JSONModel, MessageBox, MessageToast, MessageManager) {
 	"use strict";
+
+	var oHeader = {
+		"Content-Type": "application/json;charset=utf-8"
+	};
 	return {
 		getFragmentPath: function (sFragmentPath, sFragmentName) {
 			return sFragmentPath + sFragmentName;
 		},
-		fetchUserInfo: function () {
-			var oView = this.getView();
-			return new Promise(
-				function (resolve, reject) {
-					oView.getModel("UserInfo").loadData("/services/userapi/currentUser").then(function () {
-						var oUserInfoModel = oView.getModel("UserInfo"),
-							oUserAccessModel = oView.getModel("UserAccess");
-
-						oView.getModel("UserManagement").loadData("/UserManagement/service/scim/Users/" + oUserInfoModel.getProperty(
-							"/name")).then(function (oUserMgtRes) {
-
-						}.bind(this));
-						// resolved only when user access has been retrieved
-						oUserAccessModel.loadData("/DKSHJavaService2/userDetails/findAllRightsForUserInDomain/" + oUserInfoModel.getData().name +
-								"&cc")
-							.then(function (oUserAccessResp) {
-								resolve(oUserAccessResp);
-							}).catch(function (oErr) {});
-
-						oView.getModel("UserManagement").loadData("/UserManagement/service/scim/Users/" + oUserInfoModel.getProperty(
-							"/name")).then(function (oUserMgtRes) {}.bind(this));
-					}.bind(this)).catch(function (oErr) {
-						oView.setBusy(false);
-						reject(oErr);
-					});
-				}.bind(this)
-			);
-		},
-		fetchData: function (oModel, sPath, aFilters) {
+		fetchData: function (oModel, sPath, aFilters, aParams, groupId) {
 			return new Promise(
 				function (resolve, reject) {
 					oModel.read(sPath, {
 						filters: aFilters,
+						urlParameters: aParams,
+						groupId: groupId,
 						success: function (oData, oResponse) {
 							resolve(oData);
 						}.bind(this),
@@ -56,247 +29,175 @@ sap.ui.define(["sap/ui/model/json/JSONModel"], function (JSONModel) {
 					});
 				});
 		},
-		fn_panelClass: function (sStatus) {
-			// alert("abc");
-			return "";
+		createData: function (oModel, sPath, oEntry) {
+			return new Promise(function (resolve, reject) {
+				oModel.create(sPath, oEntry, {
+					success: function (oData, oResponse) {
+						resolve(oData);
+					},
+					error: function (error) {
+						reject(error);
+					}
+				});
+			});
 		},
+		fetchUserInfo: function () {
+			var oView = this.getView();
+			return new Promise(
+				function (resolve, reject) {
+					oView.getModel("UserInfo").loadData("/services/userapi/currentUser").then(function () {
+						var oUserInfoModel = oView.getModel("UserInfo"),
+							oUserAccessModel = oView.getModel("UserAccess");
 
-		itemSlockBlock: function () {
-
+						oUserAccessModel.loadData("/DKSHJavaService2/userDetails/findAllRightsForUserInDomain/" + oUserInfoModel.getData().name +
+								"&cc")
+							.then(function (oUserAccessResp) {}).catch(function (oErr) {
+								reject(oErr);
+							});
+						oView.getModel("UserManagement").loadData("/UserManagement/service/scim/Users/" + oUserInfoModel.getProperty(
+							"/name")).then(function (oUserMgtRes) {
+							resolve(oUserMgtRes);
+						}.bind(this)).catch(function (oErr) {
+							reject(oErr);
+						});
+					}.bind(this)).catch(function (oErr) {
+						reject(oErr);
+					});
+				}.bind(this)
+			);
 		},
-		reservedTask: function (processor, taskowner) {
-			/*			if (processor !== "") {
-							if (processor !== taskowner) {
-								return true;
+		fetchSaleOrder: function () {
+			var oUserInfoModel = this.getView().getModel("UserInfo"),
+				oUserMangement = this.getView().getModel("UserManagement"),
+				oFilterSaleOrder = this.getView().getModel("filterModel").getData(),
+				aProperties = ["isAdmin", "materialGroup", "materialCode", "materialGroup4", "salesOrg", "soldtoParty",
+					"division", "distChannel", "salesTeam", "salesTerritory", "endDate", "initialDate", "customerPoNo", "shipToparty",
+					"salesDocNumInitial", "salesDocNumEnd", "headerDeliveryBlock", "itemDeliveryBlock", "orderType"
+				],
+				oReqPayload = {
+					filter: {}
+				};
+			for (var index in Object.keys(aProperties)) {
+				var sProperty = aProperties[index];
+				if ((sProperty === "endDate" || sProperty === "initialDate")) {
+					var dDate = oFilterSaleOrder[sProperty];
+					oReqPayload["filter"][sProperty] = (dDate) ? dDate.getFullYear() + '/' + ('0' + (dDate.getMonth() + 1)).slice(-2) + '/' + ('0' +
+						dDate.getDate()).slice(-
+						2) : '';
+					continue;
+				}
+				oReqPayload["filter"][sProperty] = oFilterSaleOrder[sProperty];
+			}
+			Object.assign(oReqPayload, {
+				currentUserInfo: {
+					taskOwner: oUserInfoModel.getProperty("/name"),
+					userId: oUserInfoModel.getProperty("/name")
+				},
+				isForItem: false
+			});
+			this.getView().setBusy(true);
+			var sUrl = "/DKSHJavaService/taskSubmit/getSalesBlockOrder/";
+			this.getView().getModel("HeaderBlockModel").loadData(sUrl, JSON.stringify(oReqPayload), true, "POST", false, false, oHeader).then(
+					function (oRes) {
+						var oData = this.getView().getModel("HeaderBlockModel").getData();
+						oUserMangement = this.getView().getModel("UserManagement");
+
+						// No data found
+						if (oData.data.length === 0 || !oData) {
+							this.getView().setBusy(false);
+							return;
+						}
+						this.getView().getModel("HeaderBlockModel").setProperty("/count", oData.data.length);
+						oData.data.map(function (data) {
+							var sSplitDate = data.postingDate.split("/");
+							data.postingDate = new Date(+sSplitDate[2], sSplitDate[1] - 1, +sSplitDate[0]);
+							Object.assign(data, {
+								loggedInUserPid: oUserMangement.getData().id,
+								loggedInUserId: oUserMangement.getData().userName,
+								expanded: false,
+								submitForHeader: true
+							});
+						}.bind(this));
+						this.getView().getModel("HeaderBlockModel").refresh();
+						this.getView().setBusy(false);
+					}.bind(this))
+				.catch(function (oErr) {
+					this.getView().setBusy(false);
+				}.bind(this));
+		},
+		postJavaService: function (Model, sUrl, oPayload) {
+			return new Promise(
+				function (resolve, reject) {
+					Model.loadData(sUrl, oPayload, true, "POST", false, false, oHeader)
+						.then(
+							function (oRes) {
+								resolve(oRes);
+							}.bind(this)).catch(function (oErr) {
+							reject(oErr);
+						}.bind(this));
+				});
+		},
+		fetchFieldParameters: function () {
+			var sUrl = "/WorkboxServices/users/getFieldParameters/approvalworkflow",
+				oView = this.getView(),
+				oLoadModel = oView.getModel("LoadDataModel");
+
+			return new Promise(
+				function (resolve, reject) {
+					oLoadModel.loadData(sUrl, null, !0);
+					oLoadModel.attachRequestCompleted(function (oResp) {
+						var itemLevelPersData = oResp.getSource().getData().data;
+						if (!itemLevelPersData) {
+							return;
+						}
+						var customItem = {
+							"header": [],
+							"item": []
+						};
+						for (var index in itemLevelPersData) {
+							if (itemLevelPersData[index].level === "HEADER") {
+								customItem.header.push(JSON.parse(JSON.stringify(itemLevelPersData[index])));
 							} else {
-								return false;
+								customItem.item.push(JSON.parse(JSON.stringify(itemLevelPersData[index])));
 							}
-						} else {
-							return false;
-						}*/
+						}
+						oView.setModel(new JSONModel(customItem), "PersonalizationModel");
+						resolve(oResp);
+					}.bind(this));
+					oLoadModel.attachRequestFailed(function (oErr) {
+						reject(oErr);
+					});
+				});
 		},
-		approveHeaderEnable: function (processor, taskowner) {
-			/*			if (processor !== "") {
-							if (processor !== taskowner) {
-								return false;
-							} else {
-								return true;
-							}
-						} else {
-							return true;
-						}*/
+		splitText: function (taskDescription, index) {
+			return taskDescription.split("|")[+index];
 		},
-
 		status: function (val) {
-			/*			if (val === "Display Only") {
-							return "Warning";
-						} else if (val === "Approved") {
-							return "Success";
-						} else if (val === "Rejected") {
-							return "Error";
-						} else if (val === "Pending Approval") {
-							return "Information";
-						} else if (val === "Pending Approval by previous level") {
-							return "Information";
-						} else if (val === "Rejected by Previous Level") {
-							return "Error";
-						}*/
-		},
-
-		concatenateBatch: function (val1, val2, val3) {
-			if (val1 && val2 && val3) {
-				// var date = val2.getDate();
-				// var month = val2.getMonth();
-				// var year = val2.getYear();
-				var a = new Date(val2);
-
-				var Oval2 = a.toLocaleDateString();
-				// var Oval2 = [date, month, year].join('/');
-				return val1 + " " + "(" + Oval2 + ")" + " " + "(" + val3 + ")";
-			} else {
-				return "";
+			if (val === "Display Only") {
+				return "Warning";
+			} else if (val === "Approved") {
+				return "Success";
+			} else if (val === "Rejected" || val === "Pending for Rejection" || val === "Rejected by Previous Level") {
+				return "Error";
+			} else if (val === "Pending Approval" || val === "Pending Approval by previous level") {
+				return "Information";
 			}
 		},
-
+		messageStatus: function (isValid) {
+			return (isValid) ? "sap-icon://message-success" : "sap-icon://message-error";
+		},
 		dateFormatter: function (pTimeStamp) {
-			if (pTimeStamp === undefined) {
+			if (!pTimeStamp) {
 				return;
 			}
 			var a = new Date(pTimeStamp);
-			var dateFormat = a.toLocaleDateString();
-			return dateFormat;
-			// var dateFormat = sap.ui.core.format.DateFormat.getDateInstance({
-			// 	pattern: "dd/MM/YYYY"
-			// });
-			// return dateFormat.format(new Date(pTimeStamp));
+			return a.toLocaleDateString();
 		},
-		hideMultipleFilter: function (key) {
-			if (key === "salesDocNumEnd" || key === "endDate" || key === "approvalType" || key === "storageLocText") {
-				return false;
-			} else {
-				return true;
+		concateText: function (sCode, sText) {
+			if (sCode) {
+				sText = (sText) ? "(" + sText + ")" : "";
 			}
-		},
-		approveRejectText: function (mark) {
-			if (mark === "R") {
-				return "Rejected";
-			}
-			if (mark === "A") {
-				return "Approved";
-			}
-			return "";
-		},
-		getDecisionSet: function (taskDec) {
-			return taskDec.split("|")[0];
-		},
-		getLevel: function (taskDec) {
-			return taskDec.split("|")[2];
-		},
-		getDate: function (taskDec) {
-			return taskDec.split("|")[6];
-		},
-		setBlurVisibility: function (visiblity) {
-			if (visiblity === 13) {
-				return "";
-			} else if (visiblity === 14) {
-				return "BLUR";
-			} else if (visiblity === 15) {
-				return "BLURGreen";
-			}
-
-		},
-
-		setStockBlock: function (itemStockBlock) {
-			if (itemStockBlock !== null) {
-				return "ACTIVE";
-			}
-		},
-
-		formatNumber: function (sValue1, sValue2) {
-			sValue1 = parseFloat(sValue1).toFixed(2);
-			// return val1.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + " " + val2;
-			if (sValue1 !== undefined && sValue1 !== null) {
-				sValue1 = sValue1.toString();
-			}
-
-			if (sValue2 == null)
-				sValue2 = "";
-			if (sValue1 == "" || sValue1 == undefined) {
-				return "";
-			} else {
-				var x = sValue1;
-				x = x.toString();
-				var afterPoint = '';
-				if (x.indexOf('.') > 0)
-					afterPoint = x.substring(x.indexOf('.'), x.length);
-				x = Math.floor(x);
-				x = x.toString();
-				var lastThree = x.substring(x.length - 3);
-				var otherNumbers = x.substring(0, x.length - 3);
-				if (otherNumbers != '')
-					lastThree = ',' + lastThree;
-				var res = otherNumbers.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + lastThree + afterPoint;
-				if (sValue2 != "")
-					return res + " (" + sValue2 + ")";
-				else if (sValue2 == "" || sValue2 == undefined)
-					return res;
-			}
-
-		},
-
-		setEditRestriction: function (levelNum, processor, taskOwner) {
-			if (processor === "" && levelNum === "L1") {
-				return true;
-			} else if (processor === taskOwner && levelNum === "L1") {
-				return true;
-			} else {
-				return false;
-			}
-
-			if (levelNum) {
-				if (levelNum === "L1") {
-					return true;
-				} else {
-					return false;
-				}
-			}
-
-		},
-
-		setARRestriction: function (processor, taskOwner) {
-			if (processor === "") {
-				return true;
-			} else if (processor === taskOwner) {
-				return true;
-			} else {
-				return false;
-			}
-		},
-
-		setMarkIcon: function (oAction) {
-			if (oAction === "A") {
-				return "sap-icon://circle-task-2";
-			} else if (oAction === "R") {
-				return "sap-icon://circle-task-2";
-			} else {
-				return "";
-			}
-		},
-		setMarkVisibility: function (oAction) {
-			if (oAction === "A" || oAction === "R") {
-				return true;
-			} else {
-				return false;
-			}
-		},
-		setMarkType: function (oAction) {
-			if (oAction === "A") {
-				return "Success";
-			} else if (oAction === "R") {
-				return "Error";
-			} else {
-				return "None";
-			}
-		},
-
-		concatenateStrings: function (oVal1, oVal2, oVal3) {
-			if (oVal1 === "") {
-				oVal1 = 1;
-			} else {
-				oVal1 = parseFloat(oVal1);
-			}
-			if (oVal2 === "") {
-				oVal2 = 1;
-			} else {
-				oVal2 = parseFloat(oVal2);
-			}
-			if (oVal1 && oVal2) {
-				var val = oVal1 * oVal2;
-				return val.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + " " + "(" + oVal3 + ")";
-				// return val.toFixed(2) + " " + oVal3;
-			} else if (oVal1 && !oVal2) {
-				val = oVal1 * oVal2;
-				return val.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + " " + "(" + oVal3 + ")";
-				// return val.toFixed(2) + " " + oVal3;
-			} else if (!oVal1 && oVal2) {
-				val = oVal1 * oVal2;
-				return val.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + " " + "(" + oVal3 + ")";
-				// return val.toFixed(2) + " " + oVal3;
-			} else {
-				return "";
-			}
-		},
-
-		concatenateMaterial: function (oVal1, oVal2) {
-			if (oVal1 && oVal2) {
-				return oVal2 + " (" + oVal1 + ") ";
-			} else if (oVal1 && !oVal2) {
-				return oVal1;
-			} else if (!oVal1 && oVal2) {
-				return oVal2;
-			} else {
-				return "";
-			}
+			return [sCode, sText].join(" ");
 		}
 
 	};

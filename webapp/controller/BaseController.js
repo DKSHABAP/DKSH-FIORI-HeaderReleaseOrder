@@ -4,8 +4,10 @@ sap.ui.define([
 	"dksh/connectclient/headerblockorder/formatter/formatter",
 	"sap/ui/model/json/JSONModel",
 	"sap/ui/model/Filter",
-	"sap/ui/model/FilterOperator"
-], function (Controller, UIComponent, formatter, JSONModel, Filter, FilterOperator) {
+	"sap/ui/model/FilterOperator",
+	"sap/ui/core/Fragment",
+	"sap/m/MessageBox"
+], function (Controller, UIComponent, formatter, JSONModel, Filter, FilterOperator, Fragment, MessageBox) {
 	"use strict";
 
 	return Controller.extend("dksh.connectclient.headerblockorder.controller.BaseController", {
@@ -14,18 +16,41 @@ sap.ui.define([
 		preSetModel: function (oView) {
 			var oMockData = this.getOwnerComponent().getModel("MockData"),
 				oDataValueHelpModel = this.getOwnerComponent().getModel("ValueHelp_SoldToParty");
-			/*				oValueHelpModel = this.getOwnerComponent().getModel("ValueHelp");*/
 			oView.setModel(oDataValueHelpModel);
+			oView.setModel(new JSONModel(), "oUserDetailModel");
 			oView.setModel(new JSONModel({
-				panelSort: false,
+				panelSort: true,
 				isPageBusy: false
 			}), "settings");
-			oView.setModel(new JSONModel({}), "filterModel");
+			oView.setModel(new JSONModel({
+				"soldtoParty": "",
+				"salesDocNumInitial": "",
+				"salesDocNumEnd": "",
+				"distChannel": "",
+				"initialDate": null,
+				"endDate": null,
+				"materialGroup4": "",
+				"materialGroup": "",
+				"salesOrg": "",
+				"division": "",
+				"customerPoNo": "",
+				"itemDeliveryBlock": "",
+				"shipToparty": "",
+				"headerDeliveryBlock": "",
+				"materialCode": "",
+				"salesTeam": "",
+				"salesTerritory": "",
+				"orderType": "",
+				"isAdmin": false
+			}), "filterModel");
 			oView.setModel(oMockData, "MockData");
+			oView.setModel(new JSONModel(), "LoadDataModel");
+			oView.setModel(new JSONModel({
+				"count": 0
+			}), "HeaderBlockModel");
 			oView.setModel(new JSONModel(), "UserInfo");
 			oView.setModel(new JSONModel(), "UserManagement");
 			oView.setModel(new JSONModel(), "UserAccess");
-
 		},
 		getText: function (sText) {
 			if (!sText) {
@@ -51,16 +76,79 @@ sap.ui.define([
 
 			for (var indx in aProperties) {
 				if (oItemRow[aProperties[indx]]) {
-					aFilters.push(new Filter(aProperties[indx], FilterOperator.EQ, oItemRow[aProperties[indx]]));
+					aFilters.push(new Filter(aProperties[indx], FilterOperator.EQ, oItemRow[aProperties[indx]].toString()));
 				}
 			}
 			return aFilters;
 		},
-		displayWarning: function () {
-
+		resetModel: function (oModel, aProperties) {
+			aProperties.map(function (aProperty) {
+				var sPath = ["/", aProperty].join("");
+				if (typeof oModel.getProperty(sPath) === "string") {
+					oModel.setProperty(sPath, "");
+				} else if (typeof oModel.getProperty(sPath) === "boolean") {
+					oModel.setProperty(sPath, false);
+				} else if (oModel.getProperty(sPath) instanceof Date) {
+					oModel.setProperty(sPath, null);
+				}
+			});
+			oModel.updateBindings(true);
 		},
-		displayError: function () {
-
+		_loadFragment: function (sFragment, oEvent) {
+			var sFragmentPath = this.getText("FragmentPath");
+			this.getView().setBusy(true);
+			Fragment.load({
+				id: this.getView().getId(),
+				name: this.formatter.getFragmentPath(sFragmentPath, sFragment),
+				controller: this
+			}).then(function (oDialog) {
+				this.oFragmentList[sFragment] = oDialog;
+				this.getView().addDependent(oDialog);
+				if (this.vhFilter) {
+					var oItemBinding = this.oFragmentList[sFragment].getBinding("items");
+					oItemBinding.filter(this.vhFilter);
+				}
+				if (sFragment === "SoldToParty") {
+					this.oFragmentList[sFragment].setModel(new JSONModel({
+						"totalRecords": 0
+					}), "SoldToPartyModel");
+				}
+				this.getView().setBusy(false);
+				this.oFragmentList[sFragment].open();
+			}.bind(this)).catch(function (oErr) {
+				this.getView().setBusy(false);
+				var errMsg = JSON.parse(oErr.responseText).error.message.value;
+				MessageBox.warning(errMsg);
+			}.bind(this));
+		},
+		_displayWarning: function (oResponse) {
+			if (oResponse.responseText) {
+				var errMsg = JSON.parse(oResponse.responseText).error.message.value;
+				MessageBox.warning(errMsg);
+			} else {
+				MessageBox.warning(oResponse);
+			}
+			this.getView().setBusy(false);
+			this._getTable("idList").setBusy(false);
+		},
+		_displayError: function (oResponse, si18nKey) {
+			var oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+			if (oResponse.responseText) {
+				var sMessage = new DOMParser().parseFromString(oResponse.responseText, 'text/html').getElementsByTagName('h1')[0].outerText;
+				MessageBox.error("Something went wrong...\nPlease try to reload the page.", {
+					title: "Error",
+					details: oResourceBundle.getText("errorDetail", [oResponse.statusCode, sMessage]),
+					contentWidth: "110px"
+				});
+			} else {
+				MessageBox.error(this.getText(si18nKey), {
+					title: "Error",
+					details: oResponse,
+					contentWidth: "110px"
+				});
+			}
+			this.getView().setBusy(false);
+			this._getTable("idList").setBusy(false);
 		}
 	});
 });
