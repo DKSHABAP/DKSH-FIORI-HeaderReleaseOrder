@@ -11,19 +11,19 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>SalesDocument}">
 							<f:fields>
-								<Text text="{ItemBlockModel>salesOrderNum}" class="sapUiTinyMarginBegin"/>
+								<Text text="{HeaderBlockModel>salesOrderNum}" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>OrderType}">
 							<f:fields>
-								<Text text="{ItemBlockModel>orderType}" class="sapUiTinyMarginBegin"/>
+								<Text text="{HeaderBlockModel>orderType}" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>DeliveryBlock}">
 							<f:fields>
-								<!--<Text text="{ItemBlockModel>deliveryBlockCode} ({ItemBlockModel>deliveryBlockCodeText})" class="sapUiTinyMarginBegin"/>-->
+								<!--<Text text="{HeaderBlockModel>deliveryBlockCode} ({HeaderBlockModel>deliveryBlockCodeText})" class="sapUiTinyMarginBegin"/>-->
 								<Text
-									text="{parts:[{path:'ItemBlockModel>deliveryBlockCode'},{path:'ItemBlockModel>deliveryBlockCodeText'}],formatter:'.formatter.concateText'}"
+									text="{parts:[{path:'HeaderBlockModel>deliveryBlockCode'},{path:'HeaderBlockModel>deliveryBlockCodeText'}],formatter:'.formatter.concateText'}"
 									class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
@@ -33,12 +33,12 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>SalesDocDate}">
 							<f:fields>
-								<Text text="{path: 'ItemBlockModel>salesOrderDate', formatter:'.formatter.dateFormatter'}" class="sapUiTinyMarginBegin"/>
+								<Text text="{path: 'HeaderBlockModel>salesOrderDate', formatter:'.formatter.dateFormatter'}" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>CustomerPONo}">
 							<f:fields>
-								<Text text="{ItemBlockModel>customerPo}" class="sapUiTinyMarginBegin"/>
+								<Text text="{HeaderBlockModel>customerPo}" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 					</f:formElements>
@@ -47,14 +47,15 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>distributionChnlFilter}">
 							<f:fields>
-								<!--<Text text="{ItemBlockModel>distributionChannel}" class="sapUiTinyMarginBegin"/>-->
-								<Text text="{parts:[{path:'ItemBlockModel>distributionChannel'},{path:'ItemBlockModel>distrChanText'}],formatter:'.formatter.concateText'}"
+								<!--<Text text="{HeaderBlockModel>distributionChannel}" class="sapUiTinyMarginBegin"/>-->
+								<Text
+									text="{parts:[{path:'HeaderBlockModel>distributionChannel'},{path:'HeaderBlockModel>distrChanText'}],formatter:'.formatter.concateText'}"
 									class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>SoldToParty}">
 							<f:fields>
-								<Text text="{ItemBlockModel>soldToParty} ({ItemBlockModel>soldToPartyText})" class="sapUiTinyMarginBegin"/>
+								<Text text="{HeaderBlockModel>soldToParty} ({HeaderBlockModel>soldToPartyText})" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 					</f:formElements>
@@ -63,44 +64,28 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>CreditStatus}">
 							<f:fields>
-								<Link text="{ItemBlockModel>creditBlock}" press="handleCreditBlockPress($event, ${ItemBlockModel>salesOrderNum})"
+								<Link text="{HeaderBlockModel>creditBlock}" press="handleCreditBlockPress($event, ${HeaderBlockModel>salesOrderNum})"
 									class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 						<f:FormElement label="{i18n>ShipToParty}">
 							<f:fields>
-								<Text text="{ItemBlockModel>shipToParty} ({ItemBlockModel>shipToPartyText})" class="sapUiTinyMarginBegin"/>
+								<Text text="{HeaderBlockModel>shipToParty} ({HeaderBlockModel>shipToPartyText})" class="sapUiTinyMarginBegin"/>
 							</f:fields>
 						</f:FormElement>
 					</f:formElements>
 				</f:FormContainer>
 			</f:formContainers>
 		</f:Form>
-		<!--<Table inset="false" fixedLayout="true" items="{path: 'ItemBlockModel>/salesDocItemList', templateShareable: false}"-->
+		<!--<Table inset="false" fixedLayout="true" items="{path: 'HeaderBlockModel>/salesDocItemList', templateShareable: false}"-->
 		<!--	mode="MultiSelect" selectionChange="onChangeSelectionItem" backgroundDesign="Solid">-->
 		<Table inset="false" fixedLayout="true" growing="true" growingThreshold="20"
-			items="{path: 'ItemBlockModel>salesDocItemList', templateShareable: false}" mode="MultiSelect" selectionChange="onChangeSelectionItem"
+			items="{path: 'HeaderBlockModel>salesDocItemList', templateShareable: false}" mode="MultiSelect" selectionChange="onChangeSelectionItem"
 			backgroundDesign="Solid">
 			<headerToolbar>
 				<OverflowToolbar>
 					<ToolbarSpacer/>
 					<SearchField width="30%" liveChange="onItemTableFreeSearch"></SearchField>
-					<Button icon="sap-icon://edit" type="Transparent" tooltip="{i18n>Edit}" press="onPressEditItem"
-						visible="{= ${ItemBlockModel>itemBtnEanbled}}" enabled="{= ${ItemBlockModel>itemBtnEanbled} &amp;&amp; ${ItemBlockModel>levelNum} === 'L1'}"/>
-					<Button type="Transparent" text="{i18n>Save}" visible="{= !${ItemBlockModel>itemBtnEanbled}}"
-						enabled="{= !${ItemBlockModel>itemBtnEanbled}}" press="onSaveEditItem($event, 'SavedMessage', ${ItemBlockModel>})"/>
-					<Button type="Transparent" text="{i18n>Cancel}" visible="{= !${ItemBlockModel>itemBtnEanbled}}"
-						enabled="{= !${ItemBlockModel>itemBtnEanbled}}" press="onCancelEditItem"/>
-					<Button icon="sap-icon://accept" type="Accept" tooltip="{i18n>Approve}" class="dkshAcceptBtnStyle"
-						enabled="{= ${ItemBlockModel>itemBtnEanbled}}" press="onApprovePress($event, ${ItemBlockModel>})"/>
-					<Button icon="sap-icon://decline" type="Reject" tooltip="{i18n>Reject}" class="dkshRejectBtnStyle"
-						enabled="{= ${ItemBlockModel>itemBtnEanbled}}" press="onRejectPress($event, 'Reject', ${ItemBlockModel>}, ${ItemBlockModel>/})"/>
-					<Button icon="sap-icon://upload" type="Transparent" tooltip="{i18n>Submit}" enabled="{= ${ItemBlockModel>itemBtnEanbled}}"
-						press="onItemSubmission($event, ${ItemBlockModel>}, 'SubmitErrorMessage')"/>
-					<Button icon="sap-icon://display" type="Transparent" tooltip="{i18n>DisplayActions}" enabled="{= ${ItemBlockModel>itemBtnEanbled}}"
-						press="onDisplayMarkedItems($event, 'DisplayMarkedItems', ${ItemBlockModel>})"/>
-					<Button icon="sap-icon://reset" type="Transparent" tooltip="{i18n>resetDisplayBtn}" enabled="{= ${ItemBlockModel>itemBtnEanbled}}"
-						press="onResetDisplay"/>
 				</OverflowToolbar>
 			</headerToolbar>
 			<columns>
@@ -175,74 +160,77 @@
 					<cells>
 						<!-- Item No -->
 						<HBox>
-							<ObjectStatus text="{ItemBlockModel>salesItemOrderNo}"
-								icon="{= ${ItemBlockModel>acceptOrReject} === 'A' || ${ItemBlockModel>acceptOrReject} === 'R' ? 'sap-icon://circle-task-2' : '' }"
-								state="{= ${ItemBlockModel>acceptOrReject} === 'A' ? 'Success' : ${ItemBlockModel>acceptOrReject} === 'R' ? 'Error' : 'None' }"/>
+							<ObjectStatus text="{HeaderBlockModel>salesItemOrderNo}"
+								icon="{= ${HeaderBlockModel>acceptOrReject} === 'A' || ${HeaderBlockModel>acceptOrReject} === 'R' ? 'sap-icon://circle-task-2' : '' }"
+								state="{= ${HeaderBlockModel>acceptOrReject} === 'A' ? 'Success' : ${HeaderBlockModel>acceptOrReject} === 'R' ? 'Error' : 'None' }"/>
 						</HBox>
 						<!-- Material -->
 						<VBox>
-							<Text text=" {parts:['ItemBlockModel>sapMaterialNum','ItemBlockModel>shortText'],formatter:'.formatter.concateText'}"
-								visible="{= !${ItemBlockModel>editMaterial}}"/>
-							<Input value="{ItemBlockModel>sapMaterialNum}" change="onChangeItemValue($event, 'Material')" textAlign="Left" maxLength="9"
-								visible="{= ${ItemBlockModel>editMaterial}}" placeholder="{i18n>tltpMaterial}"/>
-							<Text text="{ItemBlockModel>shortText}" textAlign="Left" visible="{= ${ItemBlockModel>editMaterial}}" tooltip="{ItemBlockModel>shortText}"/>
+							<Text text=" {parts:['HeaderBlockModel>sapMaterialNum','HeaderBlockModel>shortText'],formatter:'.formatter.concateText'}"
+								visible="{= !${HeaderBlockModel>editMaterial}}"/>
+							<Input value="{HeaderBlockModel>sapMaterialNum}" change="onChangeItemValue($event, 'Material')" textAlign="Left" maxLength="9"
+								visible="{= ${HeaderBlockModel>editMaterial}}" placeholder="{i18n>tltpMaterial}"/>
+							<Text text="{HeaderBlockModel>shortText}" textAlign="Left" visible="{= ${HeaderBlockModel>editMaterial}}"
+								tooltip="{HeaderBlockModel>shortText}"/>
 						</VBox>
 						<!-- Order Qty Sales -->
-						<Input value="{ItemBlockModel>orderedQtySales}" change="onChangeItemValue($event, 'orderQty')" textAlign="Right"
-							enabled="{= ${ItemBlockModel>editOrderQty}}" placeholder="{i18n>tltpQty}"/>
+						<Input value="{HeaderBlockModel>orderedQtySales}" change="onChangeItemValue($event, 'orderQty')" textAlign="Right"
+							enabled="{= ${HeaderBlockModel>editOrderQty}}" placeholder="{i18n>tltpQty}"/>
 						<!-- salesUnit -->
 						<VBox>
-							<Text text="{ItemBlockModel>salesUnit}" textAlign="Left"/>
+							<Text text="{HeaderBlockModel>salesUnit}" textAlign="Left"/>
 						</VBox>
 						<!-- Net Price -->
-						<Input value="{ItemBlockModel>netPrice}" textAlign="Right" enabled="{= ${ItemBlockModel>editNetPrice}}" placeholder="{i18n>tltpPrice}"
+						<Input value="{HeaderBlockModel>netPrice}" textAlign="Right" enabled="{= ${HeaderBlockModel>editNetPrice}}" placeholder="{i18n>tltpPrice}"
 							change="onChangeItemValue($event, 'UnitPrice')"/>
 						<!-- Spl Price -->
-						<Text text="{ItemBlockModel>splPrice}" textAlign="Right"/>
+						<Text text="{HeaderBlockModel>splPrice}" textAlign="Right"/>
 						<!-- Net Price & Order Qty Sales & Doc Currency -->
-						<Text text="{ItemBlockModel>netWorth} ({ItemBlockModel>docCurrency})" textAlign="Right"/>
+						<Text text="{HeaderBlockModel>netWorth} ({HeaderBlockModel>docCurrency})" textAlign="Right"/>
 						<!-- Storage Location -->
 						<!--<VBox>-->
-						<!--	<Input value="{ItemBlockModel>storageLoc}" tooltip="{ItemBlockModel>storageLoc}" showValueHelp="true"-->
+						<!--	<Input value="{HeaderBlockModel>storageLoc}" tooltip="{HeaderBlockModel>storageLoc}" showValueHelp="true"-->
 						<!--		valueHelpRequest="ValueHelpRequestItem($event, 'StorageLocation', '/SearchHelp_StorageLocationSet')" valueHelpOnly="true"-->
-						<!--		enabled="{= ${ItemBlockModel>editSLoc}}"/>-->
+						<!--		enabled="{= ${HeaderBlockModel>editSLoc}}"/>-->
 						<!--</VBox>-->
 						<VBox>
-							<Input value="{ItemBlockModel>storageLoc}" tooltip="{ItemBlockModel>storageLoc}" showValueHelp="true"
+							<Input value="{HeaderBlockModel>storageLoc}" tooltip="{HeaderBlockModel>storageLoc}" showValueHelp="true"
 								valueHelpRequest="valueHelpRequest($event, 'StorageLocation', 'Code', '', false)" valueHelpOnly="true"
-								enabled="{= ${ItemBlockModel>editSLoc}}"/>
+								enabled="{= ${HeaderBlockModel>editSLoc}}"/>
 						</VBox>
 						<!-- Batch Num -->
 						<VBox>
-							<Input value="{ItemBlockModel>batchNum}" tooltip="{ItemBlockModel>batchNum}" showValueHelp="true"
+							<Input value="{HeaderBlockModel>batchNum}" tooltip="{HeaderBlockModel>batchNum}" showValueHelp="true"
 								valueHelpRequest="ValueHelpRequestItem($event, 'BatchNo', '/SearchHelp_BatchNoSet')" valueHelpOnly="true"
-								enabled="{= ${ItemBlockModel>editBatchNo}}"/>
-							<!--<Input value="{ItemBlockModel>batchNum}" tooltip="{ItemBlockModel>batchNum}" showValueHelp="true"-->
+								enabled="{= ${HeaderBlockModel>editBatchNo}}"/>
+							<!--<Input value="{HeaderBlockModel>batchNum}" tooltip="{HeaderBlockModel>batchNum}" showValueHelp="true"-->
 							<!--	valueHelpRequest="valueHelpRequest($event, 'BatchNo', 'BatchNo', '', false)" valueHelpOnly="true"-->
-							<!--	enabled="{= ${ItemBlockModel>editBatchNo}}"/>-->
+							<!--	enabled="{= ${HeaderBlockModel>editBatchNo}}"/>-->
 						</VBox>
 						<!-- Material Group -->
-						<Text text="{ItemBlockModel>materialGroup}" textAlign="Left"/>
+						<Text text="{HeaderBlockModel>materialGroup}" textAlign="Left"/>
 						<!-- Material Group 4 -->
-						<Text text="{ItemBlockModel>materialGroup4}" textAlign="Left"/>
+						<Text text="{HeaderBlockModel>materialGroup4}" textAlign="Left"/>
 						<!-- Discount 1 -->
-						<Text text="{ItemBlockModel>disc1}" textAlign="Left"/>
+						<Text text="{HeaderBlockModel>disc1}" textAlign="Left"/>
 						<!-- Discount 2 -->
-						<Text text="{ItemBlockModel>disc2}" textAlign="Left"/>
+						<Text text="{HeaderBlockModel>disc2}" textAlign="Left"/>
 						<!-- Discount 3 -->
-						<Text text="{ItemBlockModel>disc3}" textAlign="Left"/>
+						<Text text="{HeaderBlockModel>disc3}" textAlign="Left"/>
 						<!-- Discount 4 -->
-						<Text text="{ItemBlockModel>disc4}" textAlign="Left"/>
+						<Text text="{HeaderBlockModel>disc4}" textAlign="Left"/>
 						<!-- Item Delivery Block -->
-						<Text text="{parts:['ItemBlockModel>itemDlvBlock','ItemBlockModel>itemDlvBlockText'] ,formatter:'.formatter.concateText'}" textAlign="Left"/>
+						<Text text="{parts:['HeaderBlockModel>itemDlvBlock','HeaderBlockModel>itemDlvBlockText'] ,formatter:'.formatter.concateText'}"
+							textAlign="Left"/>
 						<!-- Item Category -->
-						<Text text="{parts:['ItemBlockModel>itemCategory','ItemBlockModel>itemCategText'] ,formatter:'.formatter.concateText'}" textAlign="Left"/>
+						<Text text="{parts:['HeaderBlockModel>itemCategory','HeaderBlockModel>itemCategText'] ,formatter:'.formatter.concateText'}" textAlign="Left"/>
 						<!-- Old Material Code -->
-						<Text text="{ItemBlockModel>oldMatCode}" textAlign="Left"/>
+						<Text text="{HeaderBlockModel>oldMatCode}" textAlign="Left"/>
 						<!-- Item Staging Status -->
-						<ObjectStatus text="{ItemBlockModel>itemStagingStatus}" state="{parts:['ItemBlockModel>itemStagingStatus'],formatter:'.formatter.status'}"/></cells>
-					<!--<ObjectStatus text="{ItemBlockModel>itemStagingStatus}"-->
-					<!--	state="{= ${ItemBlockModel>acceptOrReject} === 'A' ? 'Success' : ${ItemBlockModel>acceptOrReject} === 'R' ? 'Error' : 'None' }"/></cells>-->
+						<ObjectStatus text="{HeaderBlockModel>itemStagingStatus}"
+							state="{parts:['HeaderBlockModel>itemStagingStatus'],formatter:'.formatter.status'}"/></cells>
+					<!--<ObjectStatus text="{HeaderBlockModel>itemStagingStatus}"-->
+					<!--	state="{= ${HeaderBlockModel>acceptOrReject} === 'A' ? 'Success' : ${HeaderBlockModel>acceptOrReject} === 'R' ? 'Error' : 'None' }"/></cells>-->
 				</ColumnListItem>
 			</items>
 		</Table>

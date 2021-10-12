@@ -166,7 +166,6 @@ sap.ui.define([
 				this.oFragmentList[sFragment].setModel(new JSONModel(oRes), "SoldToPartyModel");
 				oTable.setBusy(false);
 			}.bind(this)).catch(this._displayWarning.bind(this));
-			/*			this._getSmartTable("idSoldToPartSmartTable").rebindTable();*/
 		},
 		onLiveSearchSoldToParty: function (oEvent, sId) {
 			var sValue = oEvent.getParameters().newValue,
@@ -262,8 +261,8 @@ sap.ui.define([
 					styleClass: sResponsivePaddingClasses
 				});
 				MessageBox.information(this.getText("SubmitSuccessMessage"));
-			}.bind(this)).catch(function () {
-				this._displayError.bind(this);
+			}.bind(this)).catch(function (oErr) {
+				this._displayError(oErr).bind(this);
 			});
 		},
 		handleCreditBlockPress: function (oEvent, sOrderNum) {
