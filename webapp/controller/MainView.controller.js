@@ -127,10 +127,6 @@ sap.ui.define([
 		},
 		// On Search data
 		onSearchSalesHeader: function (oEvent, oFilterSaleOrder) {
-			// var oView = this.getView();
-			// oSettingModel = oView.getModel("settings");
-
-			// oSettingModel.setProperty("/selectedPage", 1);
 			this.formatter.fetchSaleOrder.call(this);
 		},
 		onSearchSoldToParty: function (oEvent, sFragment, sPath, sId) {
@@ -236,12 +232,12 @@ sap.ui.define([
 		},
 		onHeaderSubmission: function (oEvent, aHeaader, sFragmentName) {
 			var oLoadDataModel = this.getView().getModel("LoadDataModel");
-			this.aDetailItem = aHeaader;
 
+			aHeaader.acceptOrReject = "A";
 			this._getTable("idList").setBusy(true);
 			// Trigger endpoint for submission
 			var sUrl = "/DKSHJavaService/taskSubmit/processECCJobNew";
-			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(this.aDetailItem)).then(function (oJavaRes) {
+			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(aHeaader)).then(function (oJavaRes) {
 				if (oLoadDataModel.getData().status === "FAILED") {
 					this._displayError(oLoadDataModel.getData().message, "SubmitFailedMessage").bind(this);
 					return;
