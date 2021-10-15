@@ -147,6 +147,9 @@ sap.ui.define([
 			}
 			this.getView().setBusy(false);
 			this._getTable("idList").setBusy(false);
+		},
+		_getTable: function (sId) {
+			return this.getView().byId(sId);
 		}
 	});
 });

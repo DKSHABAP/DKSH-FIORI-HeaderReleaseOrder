@@ -21,7 +21,6 @@
 						</f:FormElement>
 						<f:FormElement label="{i18n>DeliveryBlock}">
 							<f:fields>
-								<!--<Text text="{HeaderBlockModel>deliveryBlockCode} ({HeaderBlockModel>deliveryBlockCodeText})" class="sapUiTinyMarginBegin"/>-->
 								<Text
 									text="{parts:[{path:'HeaderBlockModel>deliveryBlockCode'},{path:'HeaderBlockModel>deliveryBlockCodeText'}],formatter:'.formatter.concateText'}"
 									class="sapUiTinyMarginBegin"/>
@@ -47,7 +46,6 @@
 					<f:formElements>
 						<f:FormElement label="{i18n>distributionChnlFilter}">
 							<f:fields>
-								<!--<Text text="{HeaderBlockModel>distributionChannel}" class="sapUiTinyMarginBegin"/>-->
 								<Text
 									text="{parts:[{path:'HeaderBlockModel>distributionChannel'},{path:'HeaderBlockModel>distrChanText'}],formatter:'.formatter.concateText'}"
 									class="sapUiTinyMarginBegin"/>
@@ -77,11 +75,9 @@
 				</f:FormContainer>
 			</f:formContainers>
 		</f:Form>
-		<!--<Table inset="false" fixedLayout="true" items="{path: 'HeaderBlockModel>/salesDocItemList', templateShareable: false}"-->
-		<!--	mode="MultiSelect" selectionChange="onChangeSelectionItem" backgroundDesign="Solid">-->
 		<Table inset="false" fixedLayout="true" growing="true" growingThreshold="20"
-			items="{path: 'HeaderBlockModel>salesDocItemList', templateShareable: false}" mode="None" selectionChange="onChangeSelectionItem"
-			backgroundDesign="Solid">
+			items="{path: 'HeaderBlockModel>salesDocItemList', templateShareable: false, sorter: [{ path: 'salesItemOrderNo', descending: false }]}"
+			mode="None" selectionChange="onChangeSelectionItem" backgroundDesign="Solid">
 			<headerToolbar>
 				<OverflowToolbar>
 					<ToolbarSpacer/>
@@ -188,11 +184,6 @@
 						<!-- Net Price & Order Qty Sales & Doc Currency -->
 						<Text text="{HeaderBlockModel>netWorth} ({HeaderBlockModel>docCurrency})" textAlign="Right"/>
 						<!-- Storage Location -->
-						<!--<VBox>-->
-						<!--	<Input value="{HeaderBlockModel>storageLoc}" tooltip="{HeaderBlockModel>storageLoc}" showValueHelp="true"-->
-						<!--		valueHelpRequest="ValueHelpRequestItem($event, 'StorageLocation', '/SearchHelp_StorageLocationSet')" valueHelpOnly="true"-->
-						<!--		enabled="{= ${HeaderBlockModel>editSLoc}}"/>-->
-						<!--</VBox>-->
 						<VBox>
 							<Input value="{HeaderBlockModel>storageLoc}" tooltip="{HeaderBlockModel>storageLoc}" showValueHelp="true"
 								valueHelpRequest="valueHelpRequest($event, 'StorageLocation', 'Code', '', false)" valueHelpOnly="true"
@@ -203,9 +194,6 @@
 							<Input value="{HeaderBlockModel>batchNum}" tooltip="{HeaderBlockModel>batchNum}" showValueHelp="true"
 								valueHelpRequest="ValueHelpRequestItem($event, 'BatchNo', '/SearchHelp_BatchNoSet')" valueHelpOnly="true"
 								enabled="{= ${HeaderBlockModel>editBatchNo}}"/>
-							<!--<Input value="{HeaderBlockModel>batchNum}" tooltip="{HeaderBlockModel>batchNum}" showValueHelp="true"-->
-							<!--	valueHelpRequest="valueHelpRequest($event, 'BatchNo', 'BatchNo', '', false)" valueHelpOnly="true"-->
-							<!--	enabled="{= ${HeaderBlockModel>editBatchNo}}"/>-->
 						</VBox>
 						<!-- Material Group -->
 						<Text text="{HeaderBlockModel>materialGroup}" textAlign="Left"/>
@@ -229,8 +217,6 @@
 						<!-- Item Staging Status -->
 						<ObjectStatus text="{HeaderBlockModel>itemStagingStatus}"
 							state="{parts:['HeaderBlockModel>itemStagingStatus'],formatter:'.formatter.status'}"/></cells>
-					<!--<ObjectStatus text="{HeaderBlockModel>itemStagingStatus}"-->
-					<!--	state="{= ${HeaderBlockModel>acceptOrReject} === 'A' ? 'Success' : ${HeaderBlockModel>acceptOrReject} === 'R' ? 'Error' : 'None' }"/></cells>-->
 				</ColumnListItem>
 			</items>
 		</Table>
