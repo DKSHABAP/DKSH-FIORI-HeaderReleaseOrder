@@ -183,19 +183,25 @@ sap.ui.define([
 				oBinding.filter(null);
 			}
 		},
-		onLiveChange: function (oEvent, sFilter1, sFilter2) {
+		onLiveChange: function (oEvent, sCode, sDescription) {
 			var value = oEvent.getParameters().value,
-				filters = [],
-				oBinding = oEvent.getSource().getBinding("items");
-
-			if (value) {
-				var oFilter = new Filter({
-					filters: [new Filter(sFilter1, FilterOperator.Contains, value), new Filter(sFilter2, FilterOperator.Contains, value)],
+				oBinding = oEvent.getSource().getBinding("items"),
+				aFilter = [];
+			if (this.vhFilter) {
+				aFilter.push(new Filter({
+					filters: this.vhFilter.aFilters.map(function (obj) {
+						return obj;
+					}),
 					and: false
-				});
+				}));
 			}
-			filters.push(oFilter ? oFilter : this.vhFilter);
-			oBinding.filter(filters);
+			if (value) {
+				aFilter.push(new Filter({
+					filters: [new Filter(sCode, FilterOperator.Contains, value), new Filter(sDescription, FilterOperator.Contains, value)],
+					and: false
+				}));
+			}
+			oBinding.filter(new Filter(aFilter, true));
 		},
 		handleAdd: function (oEvent, sPath, sProperty, sBindModel, sPathReset, sPathSoldParty) {
 			var selectedObj = oEvent.getParameters().selectedContexts[0].getObject(),
@@ -233,7 +239,7 @@ sap.ui.define([
 		onHeaderSubmission: function (oEvent, aHeader, sFragmentName) {
 			var oLoadDataModel = this.getView().getModel("LoadDataModel");
 
-			// due java side design, approve indicator set at item level to pass approval status to java for now
+			// due to java side design, pass approval status at item level for header for now
 			aHeader.salesDocItemList.map(function (item) {
 				item.acceptOrReject = "A";
 			});
@@ -317,7 +323,6 @@ sap.ui.define([
 			var oUserAccessModel = this.getView().getModel("UserAccess"),
 				aClearFragment = ["SoldToParty"];
 
-			debugger;
 			if (!oUserAccessModel.getData()[sAccess] && (sAccess) && bCheckAccess) {
 				MessageToast.show(this.getText("NoDataAccess"));
 				return;
