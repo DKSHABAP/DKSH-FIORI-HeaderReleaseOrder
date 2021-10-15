@@ -183,19 +183,25 @@ sap.ui.define([
 				oBinding.filter(null);
 			}
 		},
-		onLiveChange: function (oEvent, sFilter1, sFilter2) {
+		onLiveChange: function (oEvent, sCode, sDescription) {
 			var value = oEvent.getParameters().value,
-				filters = [],
-				oBinding = oEvent.getSource().getBinding("items");
-
-			if (value) {
-				var oFilter = new Filter({
-					filters: [new Filter(sFilter1, FilterOperator.Contains, value), new Filter(sFilter2, FilterOperator.Contains, value)],
+				oBinding = oEvent.getSource().getBinding("items"),
+				aFilter = [];
+			if (this.vhFilter) {
+				aFilter.push(new Filter({
+					filters: this.vhFilter.aFilters.map(function (obj) {
+						return obj;
+					}),
 					and: false
-				});
+				}));
 			}
-			filters.push(oFilter ? oFilter : this.vhFilter);
-			oBinding.filter(filters);
+			if (value) {
+				aFilter.push(new Filter({
+					filters: [new Filter(sCode, FilterOperator.Contains, value), new Filter(sDescription, FilterOperator.Contains, value)],
+					and: false
+				}));
+			}
+			oBinding.filter(new Filter(aFilter, true));
 		},
 		handleAdd: function (oEvent, sPath, sProperty, sBindModel, sPathReset, sPathSoldParty) {
 			var selectedObj = oEvent.getParameters().selectedContexts[0].getObject(),
@@ -230,14 +236,17 @@ sap.ui.define([
 				this.oFragmentList[sFragmentName].close();
 			}
 		},
-		onHeaderSubmission: function (oEvent, aHeaader, sFragmentName) {
+		onHeaderSubmission: function (oEvent, aHeader, sFragmentName) {
 			var oLoadDataModel = this.getView().getModel("LoadDataModel");
 
-			aHeaader.acceptOrReject = "A";
+			// due to java side design, pass approval status at item level for header for now
+			aHeader.salesDocItemList.map(function (item) {
+				item.acceptOrReject = "A";
+			});
 			this._getTable("idList").setBusy(true);
 			// Trigger endpoint for submission
 			var sUrl = "/DKSHJavaService/taskSubmit/processECCJobNew";
-			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(aHeaader)).then(function (oJavaRes) {
+			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(aHeader)).then(function (oJavaRes) {
 				if (oLoadDataModel.getData().status === "FAILED") {
 					this._displayError(oLoadDataModel.getData().message, "SubmitFailedMessage").bind(this);
 					return;
@@ -314,7 +323,6 @@ sap.ui.define([
 			var oUserAccessModel = this.getView().getModel("UserAccess"),
 				aClearFragment = ["SoldToParty"];
 
-			debugger;
 			if (!oUserAccessModel.getData()[sAccess] && (sAccess) && bCheckAccess) {
 				MessageToast.show(this.getText("NoDataAccess"));
 				return;
