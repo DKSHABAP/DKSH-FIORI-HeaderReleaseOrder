@@ -230,14 +230,17 @@ sap.ui.define([
 				this.oFragmentList[sFragmentName].close();
 			}
 		},
-		onHeaderSubmission: function (oEvent, aHeaader, sFragmentName) {
+		onHeaderSubmission: function (oEvent, aHeader, sFragmentName) {
 			var oLoadDataModel = this.getView().getModel("LoadDataModel");
 
-			aHeaader.acceptOrReject = "A";
+			// due java side design, approve indicator set at item level to pass approval status to java for now
+			aHeader.salesDocItemList.map(function (item) {
+				item.acceptOrReject = "A";
+			});
 			this._getTable("idList").setBusy(true);
 			// Trigger endpoint for submission
 			var sUrl = "/DKSHJavaService/taskSubmit/processECCJobNew";
-			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(aHeaader)).then(function (oJavaRes) {
+			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(aHeader)).then(function (oJavaRes) {
 				if (oLoadDataModel.getData().status === "FAILED") {
 					this._displayError(oLoadDataModel.getData().message, "SubmitFailedMessage").bind(this);
 					return;
