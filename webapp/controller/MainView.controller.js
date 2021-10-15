@@ -362,9 +362,6 @@ sap.ui.define([
 		onResetSoldToParty: function (oEvent) {
 			var oFilterModel = this.getView().getModel("filterModel");
 			this.resetModel(oFilterModel, ["SoldToPartId", "SoldToPartName", "SoldToPartSaleOrg", "SoldToPartDivision", "SoldToPartDistChannel"]);
-		},
-		_getTable: function (sId) {
-			return this.getView().byId(sId);
 		}
 	});
 
