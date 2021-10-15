@@ -161,7 +161,10 @@ sap.ui.define([
 				});
 				this.oFragmentList[sFragment].setModel(new JSONModel(oRes), "SoldToPartyModel");
 				oTable.setBusy(false);
-			}.bind(this)).catch(this._displayWarning.bind(this));
+			}.bind(this)).catch(function (oErr) {
+				this._displayWarning(oErr);
+				oTable.setBusy(false);
+			}.bind(this));
 		},
 		onLiveSearchSoldToParty: function (oEvent, sId) {
 			var sValue = oEvent.getParameters().newValue,
