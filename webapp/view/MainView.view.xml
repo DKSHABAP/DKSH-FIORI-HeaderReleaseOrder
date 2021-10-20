@@ -26,8 +26,8 @@
 								<OverflowToolbar>
 									<Label text="{i18n>ApproveBlockSalesOrder}"/>
 									<Label text="{HeaderBlockModel>salesOrderNum}" design="Bold"/>
-									<Label text="{i18n>descSet}"/>
-									<Label text="{HeaderBlockModel>decisionSetId}" design="Bold"/>
+									<!--<Label text="{i18n>descSet}"/>-->
+									<!--<Label text="{HeaderBlockModel>decisionSetId}" design="Bold"/>-->
 									<Label text="{i18n>level}"/>
 									<Label text="{HeaderBlockModel>levelNum}" design="Bold"/>
 									<ToolbarSpacer/>
