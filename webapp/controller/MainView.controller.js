@@ -239,7 +239,6 @@ sap.ui.define([
 					initialFocus: MessageBox.Action.OK,
 					styleClass: sResponsivePaddingClasses
 				});
-				MessageBox.information(this.getText("SubmitSuccessMessage"));
 			}.bind(this)).catch(function (oErr) {
 				this._displayError(oErr).bind(this);
 			});
