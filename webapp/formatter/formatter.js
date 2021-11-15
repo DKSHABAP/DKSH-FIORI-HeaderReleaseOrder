@@ -97,77 +97,86 @@ sap.ui.define([
 			});
 			this.getView().setBusy(true);
 			var sUrl = "/DKSHJavaService/taskSubmit/getSalesBlockOrder/";
-			this.getView().getModel("HeaderBlockModel").loadData(sUrl, JSON.stringify(oReqPayload), true, "POST", false, false, oHeader).then(
-					function (oRes) {
-						var oData = this.getView().getModel("HeaderBlockModel").getData();
-						oUserMangement = this.getView().getModel("UserManagement");
+			return new Promise(
+				function (resolve, reject) {
+					this.getView().getModel("HeaderBlockModel").loadData(sUrl, JSON.stringify(oReqPayload), true, "POST", false, false, oHeader).then(
+							function (oRes) {
+								var oData = this.getView().getModel("HeaderBlockModel").getData();
+								oUserMangement = this.getView().getModel("UserManagement");
 
-						// No data found
-						if (oData.data.length === 0 || !oData) {
+								// No data found
+								if (oData.data.length === 0 || !oData) {
+									this.getView().setBusy(false);
+									return;
+								}
+								this.getView().getModel("HeaderBlockModel").setProperty("/count", oData.data.length);
+								oData.data.map(function (data) {
+									data.creationDate = new Date(data.salesOrderDateTxt);
+									Object.assign(data, {
+										loggedInUserPid: oUserMangement.getData().id,
+										loggedInUserId: oUserMangement.getData().userName,
+										expanded: false,
+										submitForHeader: true
+									});
+								}.bind(this));
+								this.getView().getModel("HeaderBlockModel").refresh();
+								resolve(this.getView().getModel("HeaderBlockModel"));
+							}.bind(this))
+						.catch(function (oErr) {
 							this.getView().setBusy(false);
-							return;
-						}
-						this.getView().getModel("HeaderBlockModel").setProperty("/count", oData.data.length);
-						oData.data.map(function (data) {
-							data.creationDate = new Date(data.salesOrderDateTxt);
-							Object.assign(data, {
-								loggedInUserPid: oUserMangement.getData().id,
-								loggedInUserId: oUserMangement.getData().userName,
-								expanded: false,
-								submitForHeader: true
-							});
 						}.bind(this));
-						this.getView().getModel("HeaderBlockModel").refresh();
-						this.getView().setBusy(false);
-					}.bind(this))
-				.catch(function (oErr) {
-					this.getView().setBusy(false);
 				}.bind(this));
 		},
-		postJavaService: function (Model, sUrl, oPayload) {
+		postJavaService: function (Model, sUrl, oPayload, sMethod) {
 			return new Promise(
 				function (resolve, reject) {
-					Model.loadData(sUrl, oPayload, true, "POST", false, false, oHeader)
-						.then(
-							function (oRes) {
-								resolve(oRes);
-							}.bind(this)).catch(function (oErr) {
+					if (oPayload) {
+						Model.loadData(sUrl, oPayload, true, sMethod, false, false, oHeader).then(function (oRes) {
+							resolve(Model.getData());
+						}.bind(this)).catch(function (oErr) {
 							reject(oErr);
 						}.bind(this));
+					} else {
+						Model.loadData(sUrl, true, sMethod, false, false, oHeader).then(function (oRes) {
+							resolve(Model.getData());
+						}.bind(this)).catch(function (oErr) {
+							reject(oErr);
+						}.bind(this));
+					}
 				});
 		},
-		fetchFieldParameters: function () {
-			var sUrl = "/WorkboxServices/users/getFieldParameters/approvalworkflow",
-				oView = this.getView(),
-				oLoadModel = oView.getModel("LoadDataModel");
+		// fetchFieldParameters: function () {
+		// 	var sUrl = "/WorkboxServices/users/getFieldParameters/approvalworkflow",
+		// 		oView = this.getView(),
+		// 		oLoadModel = oView.getModel("LoadDataModel");
 
-			return new Promise(
-				function (resolve, reject) {
-					oLoadModel.loadData(sUrl, null, !0);
-					oLoadModel.attachRequestCompleted(function (oResp) {
-						var itemLevelPersData = oResp.getSource().getData().data;
-						if (!itemLevelPersData) {
-							return;
-						}
-						var customItem = {
-							"header": [],
-							"item": []
-						};
-						for (var index in itemLevelPersData) {
-							if (itemLevelPersData[index].level === "HEADER") {
-								customItem.header.push(JSON.parse(JSON.stringify(itemLevelPersData[index])));
-							} else {
-								customItem.item.push(JSON.parse(JSON.stringify(itemLevelPersData[index])));
-							}
-						}
-						oView.setModel(new JSONModel(customItem), "PersonalizationModel");
-						resolve(oResp);
-					}.bind(this));
-					oLoadModel.attachRequestFailed(function (oErr) {
-						reject(oErr);
-					});
-				});
-		},
+		// 	return new Promise(
+		// 		function (resolve, reject) {
+		// 			oLoadModel.loadData(sUrl, null, !0);
+		// 			oLoadModel.attachRequestCompleted(function (oResp) {
+		// 				var itemLevelPersData = oResp.getSource().getData().data;
+		// 				if (!itemLevelPersData) {
+		// 					return;
+		// 				}
+		// 				var customItem = {
+		// 					"header": [],
+		// 					"item": []
+		// 				};
+		// 				for (var index in itemLevelPersData) {
+		// 					if (itemLevelPersData[index].level === "HEADER") {
+		// 						customItem.header.push(JSON.parse(JSON.stringify(itemLevelPersData[index])));
+		// 					} else {
+		// 						customItem.item.push(JSON.parse(JSON.stringify(itemLevelPersData[index])));
+		// 					}
+		// 				}
+		// 				oView.setModel(new JSONModel(customItem), "PersonalizationModel");
+		// 				resolve(oResp);
+		// 			}.bind(this));
+		// 			oLoadModel.attachRequestFailed(function (oErr) {
+		// 				reject(oErr);
+		// 			});
+		// 		});
+		// },
 		splitText: function (taskDescription, index) {
 			return taskDescription.split("|")[+index];
 		},
@@ -197,7 +206,24 @@ sap.ui.define([
 				sText = (sText) ? "(" + sText + ")" : "";
 			}
 			return [sCode, sText].join(" ");
+		},
+		setNumericAndSort: function (oData, aProperty) {
+			if (oData) {
+				oData.userPersonaDto.map(function (item) {
+					for (var index in aProperty) {
+						var sProperty = aProperty[index];
+						item[sProperty] = +item[sProperty];
+					}
+					return item;
+				});
+				oData.userPersonaDto.sort(function (a, b) {
+					for (var index in aProperty) {
+						var sProperty = aProperty[index];
+						return a[sProperty] - b[sProperty];
+					}
+				});
+			}
+			return oData;
 		}
-
 	};
 });

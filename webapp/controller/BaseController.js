@@ -13,7 +13,7 @@ sap.ui.define([
 	return Controller.extend("dksh.connectclient.headerblockorder.controller.BaseController", {
 		formatter: formatter,
 
-		preSetModel: function (oView) {
+		_preSetModel: function (oView) {
 			var oMockData = this.getOwnerComponent().getModel("MockData"),
 				oDataValueHelpModel = this.getOwnerComponent().getModel("ValueHelp_SoldToParty");
 			oView.setModel(oDataValueHelpModel);
@@ -45,6 +45,8 @@ sap.ui.define([
 			}), "filterModel");
 			oView.setModel(oMockData, "MockData");
 			oView.setModel(new JSONModel(), "LoadDataModel");
+			oView.setModel(new JSONModel(), "SearchHelpPersonalization");
+			oView.setModel(new JSONModel(), "SoItemPersonalizationModel");
 			oView.setModel(new JSONModel({
 				"count": 0
 			}), "HeaderBlockModel");
@@ -147,6 +149,14 @@ sap.ui.define([
 			});
 			oModel.updateBindings(true);
 		},
+		_loadXMLFragment: function (sFragmentPath, sFragmentName, aOutput, sModelName) {
+			if (!this.oFragmentList[sFragmentName]) {
+				this.oFragmentList[sFragmentName] = sap.ui.xmlfragment(sFragmentPath + sFragmentName, this);
+				this.getView().addDependent(this.oFragmentList[sFragmentName]);
+			}
+			this.oFragmentList[sFragmentName].setModel(new JSONModel(aOutput), sModelName);
+			this.oFragmentList[sFragmentName].open();
+		},
 		_loadFragment: function (sFragment, oEvent) {
 			var sFragmentPath = this.getText("FragmentPath");
 			this.getView().setBusy(true);
@@ -185,7 +195,14 @@ sap.ui.define([
 		_displayError: function (oResponse, si18nKey) {
 			var oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			if (oResponse.responseText) {
-				var sMessage = new DOMParser().parseFromString(oResponse.responseText, 'text/html').getElementsByTagName('h1')[0].outerText;
+				// var sMessage = new DOMParser().parseFromString(oResponse.responseText, 'text/html').getElementsByTagName('h1')[0].outerText;
+				if (new DOMParser().parseFromString(oResponse.responseText, 'text/html').getElementsByTagName('h1').length > 0) {
+					var sMessage = new DOMParser().parseFromString(oResponse.responseText, 'text/html').getElementsByTagName('h1')[0].outerText;
+				} else if (typeof oResponse.responseText === "string") {
+					sMessage = oResponse.responseText;
+				} else {
+					sMessage = JSON.parse(oResponse.responseText).message;
+				}
 				MessageBox.error("Something went wrong...\nPlease try to reload the page.", {
 					title: "Error",
 					details: oResourceBundle.getText("errorDetail", [oResponse.statusCode, sMessage]),
@@ -200,6 +217,52 @@ sap.ui.define([
 			}
 			this.getView().setBusy(false);
 			this._getTable("idList").setBusy(false);
+		},
+		_returnPersDefault: function () {
+			return {
+				isBtnVisible: true,
+				isDelBtnVisible: true,
+				isListEnabled: false,
+				isSetCreatable: false,
+				isEdit: false,
+				newVariant: "",
+				valueState: "None"
+			};
+		},
+		_returnShVarPayload: function (oModel, oUserData, applicationId, sVariant) {
+			return {
+				"varaiantObject": oModel.getData().userPersonaDto.map(function (item) {
+					item.variantId = sVariant;
+					return item;
+				}),
+				"userId": oUserData.name,
+				"applicationId": applicationId,
+				"varaintId": sVariant
+			};
+		},
+		_returnItemVarPayload: function (oModel, oUserData, sVariant) {
+			return {
+				"header": {
+					"userPersonaDto": oModel.getData().header.userPersonaDto.map(function (item) {
+						item.variantId = sVariant;
+						return item;
+					})
+				},
+				"item": {
+					"userPersonaDto": oModel.getData().item.userPersonaDto.map(function (item) {
+						item.variantId = sVariant;
+						return item;
+					})
+				},
+				"userId": oUserData.name,
+				"variantId": sVariant
+			};
+		},
+		_setPersCreationSetting: function (oDto) {
+			return oDto.map(function (item) {
+				item.status = false;
+				item.id = "";
+			});
 		},
 		_getTable: function (sId) {
 			return this.getView().byId(sId);

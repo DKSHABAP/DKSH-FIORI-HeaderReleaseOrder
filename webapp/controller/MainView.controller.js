@@ -13,14 +13,39 @@ sap.ui.define([
 
 	return BaseController.extend("dksh.connectclient.headerblockorder.controller.MainView", {
 		onInit: function () {
-			// Pre Set Model (Base Controller)
-			this.preSetModel(this.getView());
+			this._preSetModel(this.getView());
+			this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			this.oFragmentList = [];
 
 			this.getView().setBusy(true);
 			Promise.all([this.formatter.fetchUserInfo.call(this)]).then(function (oRes) {
-				this.formatter.fetchSaleOrder.call(this);
-			}.bind(this)).catch(this._displayError.bind(this));
+				var oUserData = this.getView().getModel("UserInfo").getData();
+				var fnReturnPayload = function (appId) {
+					return {
+						userId: oUserData.name,
+						appId: appId,
+						runType: "Web",
+						emailId: oUserData.email
+					};
+				};
+				Promise.all([
+					this.formatter.postJavaService.call(this, this.getView().getModel("SearchHelpPersonalization"),
+						this.getText("getVariant"), JSON.stringify(fnReturnPayload("keySearchReleaseBlock")), "POST"),
+					this.formatter.postJavaService.call(this, this.getView().getModel("SoItemPersonalizationModel"),
+						this.getText("getVariantRelease"), JSON.stringify(fnReturnPayload(
+							"keyHeaderReleaseBlock@keyItemReleaseBlock")), "POST"),
+					this.formatter.fetchSaleOrder.call(this)
+				]).then(function (_oRes) {
+					Object.assign(this.formatter.setNumericAndSort(_oRes[0], ["sequence"]), this._returnPersDefault());
+					this.getView().getModel("SearchHelpPersonalization").refresh();
+					Object.assign(_oRes[1], this._returnPersDefault());
+					this.getView().setBusy(false);
+				}.bind(this)).catch(function (oErr) {
+					this._displayError(oErr);
+				}.bind(this));
+			}.bind(this)).catch(function (oErr) {
+				this._displayError(oErr);
+			}.bind(this));
 		},
 		onSortPress: function (oEvent, sId, sPath, sField) {
 			var oView = this.getView(),
@@ -67,16 +92,6 @@ sap.ui.define([
 		onResetValueHelp: function (oEvent) {
 			var oFilterModel = this.getView().getModel("filterModel");
 			this.resetModel(oFilterModel, Object.keys(this.getView().getModel("filterModel").getData()));
-		},
-		onPressPersonalization: function (oEvent) {
-			this.getView().setModel({
-				deletePersBtnVisible: false,
-				savePersBtnVisible: false
-			}, "FilterPersonalization");
-			this._loadFragment("Personalization").bind(this);
-		},
-		onPressFilterPersonalization: function (oEvent) {
-
 		},
 		onSearchValueForHeader: function (oEvent) {
 			var sValue = oEvent.getParameters().newValue,
@@ -127,7 +142,9 @@ sap.ui.define([
 		},
 		// On Search data
 		onSearchSalesHeader: function (oEvent, oFilterSaleOrder) {
-			this.formatter.fetchSaleOrder.call(this);
+			this.formatter.fetchSaleOrder.call(this).then(function () {
+				this.getView().setBusy(false);
+			}.bind(this));
 		},
 		onSearchSoldToParty: function (oEvent, sFragment, sId) {
 			this._setBindFilterStp(sId);
@@ -228,7 +245,9 @@ sap.ui.define([
 				var fnCloseApprove = function (oAction) {
 					if (oAction === "OK") {
 						this._getTable("idList").setBusy(false);
-						this.formatter.fetchSaleOrder.call(this);
+						this.formatter.fetchSaleOrder.call(this).then(function () {
+							this.getView().setBusy(false);
+						}.bind(this));
 					}
 				}.bind(this);
 				MessageBox.show(this.getText("SubmitSuccessMessage"), {
@@ -327,12 +346,123 @@ sap.ui.define([
 			}
 			this._loadFragment(sFragment, oEvent);
 		},
+		onPressPersonalization: function (oEvent, sFragmentName, sModel) {
+			this.getView().setModel(new JSONModel(JSON.parse(this.getView().getModel(sModel).getJSON())), "initialValueModel");
+			this._loadXMLFragment(this.getText("MainFragmentPath"), sFragmentName, this.getView().getModel(sModel), sModel).bind(this);
+		},
+		onPresBtnShVariant: function (oEvent, sFragmentName, oModel, sModelName, sAction, isItemPers) {
+			if (sAction === "Create") {
+				if (isItemPers) {
+					this._setPersCreationSetting(oModel.getData().header.userPersonaDto);
+					this._setPersCreationSetting(oModel.getData().item.userPersonaDto);
+				} else {
+					this._setPersCreationSetting(oModel.getData().userPersonaDto);
+				}
+				var aSet = ["isSetCreatable", "isBtnVisible", "isListEnabled"];
+				for (var index in aSet) {
+					var oSet = aSet[index];
+					oModel.setProperty("/" + oSet, !oModel.getData()[oSet]);
+				}
+			} else if (sAction === "Cancel") {
+				var oInitialData = JSON.parse(JSON.stringify(this.getView().getModel("initialValueModel").getData()));
+				oModel.setData(oInitialData, this._returnPersDefault());
+			} else if (sAction === "Edit") {
+				aSet = ["isBtnVisible", "isDelBtnVisible", "isListEnabled", "isEdit"];
+				for (index in aSet) {
+					oSet = aSet[index];
+					oModel.setProperty("/" + oSet, !oModel.getData()[oSet]);
+				}
+			}
+			this.oFragmentList[sFragmentName].getModel(sModelName).refresh();
+		},
+		onChangeVariant: function (oEvent, oModel, sModel, sFragmentName) {
+			var oUserData = this.getView().getModel("UserInfo").getData(),
+				sVariantUrl = (sFragmentName === "SearchHelpPersonalization") ? "variantListUrl" : "variantReleaseListUrl",
+				sUrl = this.oResourceBundle.getText(sVariantUrl, [oUserData.name, (oEvent) ? oEvent.getParameters().selectedItem.getKey() :
+					"Default"
+				]);
+			this.callJavaServicePersonalization(oModel, sModel, "CHANGE", null, sUrl, sFragmentName);
+		},
+		onVariantUpdate: function (oEvent, oModel, sModel, sAction, sFragmentName, isItemPers) {
+			var oUserData = this.getView().getModel("UserInfo").getData();
+			if (!oModel.getData().newVariant && !oModel.getData().isEdit) {
+				oModel.setProperty("/valueState", "Error");
+				this.oFragmentList[sFragmentName].getModel(sModel).refresh();
+				return;
+			}
+			var sVariant = (oModel.getData().isEdit) ? oModel.getData().currentVariant : oModel.getData().newVariant;
+			oModel.setProperty("/valueState", "None");
+			var oPayload = (isItemPers) ? this._returnItemVarPayload(oModel, oUserData, sVariant) : this._returnShVarPayload(oModel, oUserData,
+					"keySearchReleaseBlock", sVariant),
+				sUrl = (isItemPers) ? this.getText("updateVariantRelease") : this.getText("updateVariant");
+			this.callJavaServicePersonalization(oModel, sModel, sAction, JSON.stringify(oPayload), sUrl, sFragmentName);
+		},
+		onVariantDelete: function (oEvent, oModel, sModel, sAction, sFragmentName, isItemPers) {
+			var fnClose = function (oAction) {
+				if (oAction === "CANCEL") {
+					return;
+				}
+				var oUserData = this.getView().getModel("UserInfo").getData(),
+					oPayload = (isItemPers) ? this._returnItemVarPayload(oModel, oUserData, oModel.getData().currentVariant) : this._returnShVarPayload(
+						oModel, oUserData, "keySearchReleaseBlock", oModel.getData().currentVariant),
+					sUrl = (isItemPers) ? this.getText("deleteVariantRelease") : this.getText("deleteVariant");
+				this.callJavaServicePersonalization(oModel, sModel, sAction, JSON.stringify(oPayload), sUrl, sFragmentName);
+			}.bind(this);
+			MessageBox.show(this.oResourceBundle.getText("variantDeleteMsg", [oModel.getData().currentVariant]), {
+				icon: MessageBox.Icon.INFORMATION,
+				title: "Confirmation",
+				actions: [MessageBox.Action.YES, MessageBox.Action.CANCEL],
+				onClose: fnClose,
+				initialFocus: MessageBox.Action.CANCEL,
+				styleClass: sResponsivePaddingClasses
+			});
+		},
+		callJavaServicePersonalization: function (oModel, sModel, sAction, oPayload, sUrl, sFragmentName) {
+			var sMethod = (sAction === "SAVE") ? "PUT" : (sAction === "DELETE") ? "DELETE" : "POST";
+			this.getView().setBusy(true);
+			this.formatter.postJavaService.call(this, this.getView().getModel("LoadDataModel"), sUrl, oPayload, sMethod).then(function (_oRes) {
+				if (sMethod === "DELETE") {
+					oModel.setData(Object.assign(oModel.getData(), this._returnPersDefault()));
+					oModel.getData().variantName.splice(oModel.getData().variantName.findIndex(function (item) {
+						return item.name === oModel.getData().currentVariant;
+					}), 1);
+					this.onChangeVariant(null, oModel, sModel, sFragmentName);
+					return;
+				}
+				if (sMethod === "PUT") {
+					if (oModel.getData().newVariant) {
+						oModel.getData()["variantName"].push({
+							name: oModel.getData().newVariant
+						});
+					}
+					oModel.setData(Object.assign(oModel.getData(), this._returnPersDefault()));
+				}
+				if (sFragmentName === "SearchHelpPersonalization") {
+					oModel.setProperty("/currentVariant", _oRes.userPersonaDto[0].variantId);
+					oModel.setProperty("/userPersonaDto", this.formatter.setNumericAndSort(_oRes, ["sequence"]).userPersonaDto);
+				} else {
+					oModel.setProperty("/currentVariant", _oRes.header.userPersonaDto[0].variantId);
+					oModel.setProperty("/header/userPersonaDto", _oRes.header.userPersonaDto);
+					oModel.setProperty("/item/userPersonaDto", _oRes.item.userPersonaDto);
+				}
+				var oInitialData = JSON.parse(JSON.stringify(oModel.getData()));
+				this.getView().getModel("initialValueModel").setData(oInitialData);
+				this.oFragmentList[sFragmentName].getModel(sModel).refresh();
+				this.getView().setBusy(false);
+			}.bind(this)).catch(function (oErr) {
+				this._displayError(oErr);
+			}.bind(this));
+		},
+		onAfterClose: function (oEvent, oModel, sModelName, sFragmentName) {
+			this.onPresBtnShVariant(oEvent, sFragmentName, oModel, sModelName, "Cancel", false);
+		},
 		onPressRefresh: function () {
-			this.formatter.fetchSaleOrder.call(this);
+			this.formatter.fetchSaleOrder.call(this).then(function () {
+				this.getView().setBusy(false);
+			}.bind(this));
 		},
 		onReset: function (oEvent) {
 			var oFilterModel = this.getView().getModel("filterModel");
-
 			oFilterModel.setData({});
 			oFilterModel.updateBindings(true);
 		}
