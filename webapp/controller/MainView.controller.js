@@ -235,9 +235,9 @@ sap.ui.define([
 				item.acceptOrReject = "A";
 			});
 			this._getTable("idList").setBusy(true);
-			// Trigger endpoint for submission
+			debugger;
 			var sUrl = "/DKSHJavaService/taskSubmit/processECCJobNew";
-			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(aHeader)).then(function (oJavaRes) {
+			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(aHeader), "POST").then(function (oJavaRes) {
 				if (oLoadDataModel.getData().status === "FAILED") {
 					this._displayError(oLoadDataModel.getData().message, "SubmitFailedMessage").bind(this);
 					return;
@@ -259,8 +259,8 @@ sap.ui.define([
 					styleClass: sResponsivePaddingClasses
 				});
 			}.bind(this)).catch(function (oErr) {
-				this._displayError(oErr).bind(this);
-			});
+				this._displayError(oErr);
+			}.bind(this));
 		},
 		handleCreditBlockPress: function (oEvent, sOrderNum) {
 			var oButton = oEvent.getSource(),
