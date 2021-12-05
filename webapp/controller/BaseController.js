@@ -20,15 +20,16 @@ sap.ui.define([
 			oView.setModel(new JSONModel(), "oUserDetailModel");
 			oView.setModel(new JSONModel({
 				panelSort: true,
-				isPageBusy: false
+				isPageBusy: false,
+				valueStateDate: "None"
 			}), "settings");
 			oView.setModel(new JSONModel({
 				"soldtoParty": "",
 				"salesDocNumInitial": "",
 				"salesDocNumEnd": "",
 				"distChannel": "",
-				"initialDate": null,
-				"endDate": null,
+				"initialDate": this.formatter.returnDate(new Date(), 15),
+				"endDate": new Date(),
 				"materialGroup4": "",
 				"materialGroup": "",
 				"salesOrg": "",
