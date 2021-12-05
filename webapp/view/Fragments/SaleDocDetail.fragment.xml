@@ -239,7 +239,7 @@
 						<Text text="{ItemBlockModel>disc1}" textAlign="Left"/>
 						<!-- Item Staging Status -->
 						<ObjectStatus text="{HeaderBlockModel>itemStagingStatus}"
-							state="{parts:['HeaderBlockModel>itemStagingStatus'],formatter:'.formatter.status'}"/></cells>
+							state="{parts:['HeaderBlockModel>taskItemStatus', 'HeaderBlockModel>visiblity'],formatter:'.formatter.displayStatus'}"/></cells>
 				</ColumnListItem>
 			</items>
 		</Table>
