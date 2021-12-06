@@ -21,7 +21,8 @@ sap.ui.define([
 			oView.setModel(new JSONModel({
 				panelSort: true,
 				isPageBusy: false,
-				valueStateDate: "None"
+				valueStateDate: "None",
+				valueStateDateText: ""
 			}), "settings");
 			oView.setModel(new JSONModel({
 				"soldtoParty": "",
