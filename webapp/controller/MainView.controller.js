@@ -235,7 +235,6 @@ sap.ui.define([
 				item.acceptOrReject = "A";
 			});
 			this._getTable("idList").setBusy(true);
-			debugger;
 			var sUrl = "/DKSHJavaService/taskSubmit/processECCJobNew";
 			this.formatter.postJavaService.call(this, oLoadDataModel, sUrl, JSON.stringify(aHeader), "POST").then(function (oJavaRes) {
 				if (oLoadDataModel.getData().status === "FAILED") {
@@ -267,19 +266,13 @@ sap.ui.define([
 				sFragmentPath = this.getText("MainFragmentPath"),
 				oView = this.getView(),
 				oModel = this.getOwnerComponent().getModel(),
-				oItemRow = {},
 				aFilters = [];
 
-			oItemRow["salesOrderNum"] = sOrderNum;
-			oItemRow["creditBlock"] = oButton.getProperty("text");
 			var oFilter = new Filter({
-				filters: this.setODataFilter([
-					"salesOrderNum", "creditBlock"
-				], oItemRow),
+				filters: [new Filter("salesOrderNum", FilterOperator.EQ, sOrderNum)],
 				and: true
 			});
 			aFilters.push(oFilter);
-
 			if (!this.oFragmentList["CreditBlockReasons"]) {
 				Fragment.load({
 					id: oView.getId(),
@@ -297,6 +290,7 @@ sap.ui.define([
 			} else {
 				Promise.all([this.formatter.fetchData.call(this, oModel, "/CreditStatusSet", aFilters)]).
 				then(function (oRes) {
+					this.oFragmentList["CreditBlockReasons"].setModel(new JSONModel(oRes[0]), "CreditBlockReasonsModel");
 					this.oFragmentList["CreditBlockReasons"].openBy(oButton);
 				}.bind(this)).catch(this._displayWarning.bind(this));
 			}
