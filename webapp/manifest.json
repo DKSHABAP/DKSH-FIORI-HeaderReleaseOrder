@@ -137,7 +137,7 @@
 				},
 				{
 					"name": "Worklist",
-					"pattern": "/{sdn}",
+					"pattern": "{sdn}",
 					"titleTarget": "",
 					"greedy": false,
 					"target": [
