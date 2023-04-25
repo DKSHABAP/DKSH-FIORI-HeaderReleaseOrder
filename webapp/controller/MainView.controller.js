@@ -55,7 +55,7 @@ sap.ui.define([
 		 */
 		_onRouteMatched: function (oEvent) {
 			var oArgument = oEvent.getParameter("arguments");
-			var oQuery = oArgument["?query"];
+			var oQuery = oArgument["/query"];
 			var oFilterModel = this.getView().getModel("filterModel");
 			if (oQuery && oQuery.sdn) {
 				oFilterModel.setProperty("salesDocNumInitial", oQuery.sdn);

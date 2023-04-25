@@ -130,7 +130,7 @@
 			"routes": [
 				{
 					"name": "MainView",
-					"pattern": ":?query:",
+					"pattern": ":/query:",
 					"target": [
 						"MainView"
 					]
