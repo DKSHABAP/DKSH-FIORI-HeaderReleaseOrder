@@ -57,7 +57,7 @@ sap.ui.define([
 			var oArgument = oEvent.getParameter("arguments");
 			var oQuery = oArgument["?query"];
 			var oFilterModel = this.getView().getModel("filterModel");
-			if (oQuery.sdn) {
+			if (oQuery && oQuery.sdn) {
 				oFilterModel.setProperty("salesDocNumInitial", oQuery.sdn);
 				oFilterModel.setProperty("salesDocNumEnd", oQuery.sdn);
 			}
