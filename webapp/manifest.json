@@ -130,7 +130,16 @@
 			"routes": [
 				{
 					"name": "MainView",
-					"pattern": ":/query:",
+					"pattern": "",
+					"target": [
+						"MainView"
+					]
+				},
+				{
+					"name": "",
+					"pattern": "/{sdn}",
+					"titleTarget": "",
+					"greedy": false,
 					"target": [
 						"MainView"
 					]

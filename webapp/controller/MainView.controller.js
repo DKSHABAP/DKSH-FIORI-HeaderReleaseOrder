@@ -15,6 +15,7 @@ sap.ui.define([
 		onInit: function () {
 			this._preSetModel(this.getView());
 			this.getRouter().getRoute("MainView").attachMatched(this._onRouteMatched, this);
+			this.getRouter().getRoute("Worklist").attachMatched(this._onRouteMatched, this);
 			// this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			// this.oFragmentList = [];
 
@@ -55,9 +56,11 @@ sap.ui.define([
 		 */
 		_onRouteMatched: function (oEvent) {
 			var oArgument = oEvent.getParameter("arguments");
-			var oQuery = oArgument["/query"];
+			var oQuery = {
+				sdn: oArgument["sdn"] || null
+			};
 			var oFilterModel = this.getView().getModel("filterModel");
-			if (oQuery && oQuery.sdn) {
+			if (oQuery.sdn) {
 				oFilterModel.setProperty("salesDocNumInitial", oQuery.sdn);
 				oFilterModel.setProperty("salesDocNumEnd", oQuery.sdn);
 			}
