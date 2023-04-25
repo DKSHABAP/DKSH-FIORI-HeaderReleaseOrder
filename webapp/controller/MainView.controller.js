@@ -59,9 +59,10 @@ sap.ui.define([
 				sdn: oArgument["sdn"] || null
 			};
 			var oFilterModel = this.getView().getModel("filterModel");
+			var oFilterData = oFilterModel.getData();
 			if (oQuery.sdn) {
-				oFilterModel.setProperty("salesDocNumInitial", oQuery.sdn);
-				oFilterModel.setProperty("salesDocNumEnd", oQuery.sdn);
+				oFilterData.salesDocNumInitial = oQuery.sdn;
+				oFilterData.salesDocNumEnd = oQuery.sdn;
 			}
 			oFilterModel.refresh();
 			this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
