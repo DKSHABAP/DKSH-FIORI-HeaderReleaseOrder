@@ -14,6 +14,54 @@ sap.ui.define([
 	return BaseController.extend("dksh.connectclient.headerblockorder.controller.MainView", {
 		onInit: function () {
 			this._preSetModel(this.getView());
+			this.getRouter().getRoute("MainView").attachMatched(this._onRouteMatched, this);
+			// this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+			// this.oFragmentList = [];
+
+			// this.getView().setBusy(true);
+			// Promise.all([this.formatter.fetchUserInfo.call(this)]).then(function (oRes) {
+			// 	var oUserData = this.getView().getModel("UserInfo").getData();
+			// 	var fnReturnPayload = function (appId) {
+			// 		return {
+			// 			userId: oUserData.name,
+			// 			appId: appId,
+			// 			runType: "Web",
+			// 			emailId: oUserData.email
+			// 		};
+			// 	};
+			// 	Promise.all([
+			// 		this.formatter.postJavaService.call(this, this.getView().getModel("SearchHelpPersonalization"),
+			// 			this.getText("getVariant"), JSON.stringify(fnReturnPayload("keySearchReleaseBlock")), "POST"),
+			// 		this.formatter.postJavaService.call(this, this.getView().getModel("SoItemPersonalizationModel"),
+			// 			this.getText("getVariantRelease"), JSON.stringify(fnReturnPayload(
+			// 				"keyHeaderReleaseBlock@keyItemReleaseBlock")), "POST"),
+			// 		this.formatter.fetchSaleOrder.call(this)
+			// 	]).then(function (_oRes) {
+			// 		Object.assign(this.formatter.setNumericAndSort(_oRes[0], ["sequence"]), this._returnPersDefault());
+			// 		this.getView().getModel("SearchHelpPersonalization").refresh();
+			// 		Object.assign(_oRes[1], this._returnPersDefault());
+			// 		this.getView().setBusy(false);
+			// 	}.bind(this)).catch(function (oErr) {
+			// 		this._displayError(oErr);
+			// 	}.bind(this));
+			// }.bind(this)).catch(function (oErr) {
+			// 	this._displayError(oErr);
+			// }.bind(this));
+		},
+		/** 
+		 * Routing logic for MainView
+		 * @constructor 
+		 * @param oEvent Event parameter
+		 */
+		_onRouteMatched: function (oEvent) {
+			var oArgument = oEvent.getParameter("arguments");
+			var oQuery = oArgument["?query"];
+			var oFilterModel = this.getModel("filterModel");
+			if (oQuery.sdn) {
+				oFilterModel.setProperty("salesDocNumInitial", oQuery.sdn);
+				oFilterModel.setProperty("salesDocNumEnd", oQuery.sdn);
+			}
+			oFilterModel.refresh();
 			this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			this.oFragmentList = [];
 
