@@ -130,7 +130,16 @@
 			"routes": [
 				{
 					"name": "MainView",
-					"pattern": ":sdn:",
+					"pattern": "",
+					"target": [
+						"MainView"
+					]
+				},
+				{
+					"name": "Worklist",
+					"pattern": "q/{sdn}",
+					"titleTarget": "",
+					"greedy": false,
 					"target": [
 						"MainView"
 					]

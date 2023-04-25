@@ -15,6 +15,7 @@ sap.ui.define([
 		onInit: function () {
 			this._preSetModel(this.getView());
 			this.getRouter().getRoute("MainView").attachMatched(this._onRouteMatched, this);
+			this.getRouter().getRoute("Worklist").attachMatched(this._onRouteMatched, this);
 			// this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			// this.oFragmentList = [];
 
