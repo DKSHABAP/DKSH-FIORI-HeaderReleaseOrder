@@ -58,9 +58,19 @@ sap.ui.define([
 			var oQuery = oArgument["?query"];
 			var oFilterModel = this.getView().getModel("filterModel");
 			var oFilterData = oFilterModel.getData();
-			if (oQuery && oQuery.sdn) {
-				oFilterData.salesDocNumInitial = oQuery.sdn;
-				oFilterData.salesDocNumEnd = oQuery.sdn;
+			if (oQuery) {
+				if (oQuery.sdna) {
+					oFilterData.salesDocNumInitial = oQuery.sdna;
+				}
+				if (oQuery.sdnz) {
+					oFilterData.salesDocNumEnd = oQuery.sdnz;
+				}
+				if(oQuery.sdda) {
+					oFilterData.initialDate = oQuery.sdda;
+				}
+				if(oQuery.sddz) {
+					oFilterData.endDate = oQuery.sddz;
+				}
 			}
 			oFilterModel.refresh();
 			this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
