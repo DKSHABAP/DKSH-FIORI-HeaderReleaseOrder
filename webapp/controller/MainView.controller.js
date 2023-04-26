@@ -55,12 +55,10 @@ sap.ui.define([
 		 */
 		_onRouteMatched: function (oEvent) {
 			var oArgument = oEvent.getParameter("arguments");
-			var oQuery = {
-				sdn: oArgument["sdn"] || null
-			};
+			var oQuery = oArgument["?query"];
 			var oFilterModel = this.getView().getModel("filterModel");
 			var oFilterData = oFilterModel.getData();
-			if (oQuery.sdn) {
+			if (oQuery && oQuery.sdn) {
 				oFilterData.salesDocNumInitial = oQuery.sdn;
 				oFilterData.salesDocNumEnd = oQuery.sdn;
 			}
