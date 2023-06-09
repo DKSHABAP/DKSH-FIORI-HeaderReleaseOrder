@@ -7,12 +7,13 @@
 		<content>
 			<core:Fragment fragmentName="dksh.connectclient.itemblockorder.view.Fragments.SalesFilterFrag" type="XML"/>
 			<OverflowToolbar id="otb1" class="dkshToolbarStyle customTitle">
-				<Title text="{i18n>pendingRequests} ({=${HeaderBlockModel>/count} ? ${HeaderBlockModel>/count} : 0})" class="sapUiSmallMarginBegin"/>
+				<!--<Title text="{i18n>pendingRequests} ({=${HeaderBlockModel>/count} ? ${HeaderBlockModel>/count} : 0})" class="sapUiSmallMarginBegin"/>-->
+				<Title text="{i18n>pendingRequests})" class="sapUiSmallMarginBegin"/>
 				<ToolbarSpacer/>
 				<Button icon="sap-icon://sort" type="Transparent" tooltip="{i18n>Sort}" press="onSortPress($event, 'idList', '/panelSort', 'creationDate')"/>
 				<Button type="Transparent" text="{i18n>ExpandAll}" press="onExpandAll" enabled="{oButtonModel>/expandButtonShow}"/>
 				<Button type="Transparent" text="{i18n>CollapseAll}" press="onCollapseAll" enabled="{oButtonModel>/expandButtonShow}"/>
-				<SearchField width="30%" liveChange="onSearchValueForHeader" search="onSearchValueForHeader" placeholder="{i18n>Search}"></SearchField>
+				<SearchField width="30%" liveChange="onSearchValueForHeader" search="onSearchValueForHeader" placeholder="{i18n>Search}"></SearchField visible="false" >
 				<!--<Button icon="sap-icon://settings" type="Transparent" tooltip="{i18n>ItemPersonalization}" press="onPressPersonalization"/>-->
 				<Button icon="sap-icon://settings" type="Transparent" tooltip="{i18n>ItemPersonalization}"
 					press="onPressPersonalization($event, 'SoItemPersonalization', 'SoItemPersonalizationModel')"></Button>
@@ -45,6 +46,16 @@
 					</CustomListItem>
 				</items>
 			</List>
+			<VBox id="idPageNumberDiv" justifyContent="Center" alignItems="Center" class="pageNumberDivClass">
+				<Label id="idCurrentPage" class="pageNumberStyleClass"/>
+				<HBox class="pageLinkClass">
+					<Button id="idPrevButton" icon="sap-icon://navigation-left-arrow" class="navigateButtonClass sapUiSizeCompact" press="onScrollLeft" type="Transparent" enabled="{paginatedModel>/scrollLeftEnabled}"/>
+					<HBox items="{paginatedModel>/pages}">
+						<Link text="{paginatedModel>text}" press="onPageClick" class="paginationNumbers"/>
+					</HBox>
+					<Button id="idNextButton" icon="sap-icon://navigation-right-arrow" class="navigateButtonClass sapUiSizeCompact" press="onScrollRight" type="Transparent" enabled="{paginatedModel>/scrollRightEnabled}"/>
+				</HBox>
+			</VBox>
 		</content>
 	</Page>
 </mvc:View>

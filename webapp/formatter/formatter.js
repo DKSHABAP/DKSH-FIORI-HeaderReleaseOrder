@@ -101,12 +101,16 @@ sap.ui.define([
 				}
 				oReqPayload["filter"][sProperty] = oFilterSaleOrder[sProperty];
 			}
+			var oPaginatedModel = this.getView().getModel("paginatedModel");
+			var oPaginatedData = oPaginatedModel.getData();
 			Object.assign(oReqPayload, {
 				currentUserInfo: {
 					taskOwner: oUserInfoModel.getProperty("/name"),
 					userId: oUserInfoModel.getProperty("/name")
 				},
-				isForItem: false
+				isForItem: false,
+				skipCount: oPaginatedData.skipCount,
+				maxCount: oPaginatedData.maxCount
 			});
 			this.getView().setBusy(true);
 			var sUrl = "/DKSHJavaService/taskSubmit/getSalesBlockOrder/";
@@ -119,8 +123,29 @@ sap.ui.define([
 
 								// No data found
 								if (oData.data.length === 0 || !oData) {
-									this.getView().setBusy(false);
-									return;
+									if (oPaginatedData.skipCount > 0) {
+										oPaginatedData.scrollRightEnabled = false;
+										oPaginatedData.scrollLeftEnabled = true;
+									} else {
+										oPaginatedData.scrollRightEnabled = false;
+										oPaginatedData.scrollLeftEnabled = false;
+									}
+								} else if (oData.data.length < oPaginatedData.maxCount) {
+									if (oPaginatedData.skipCount > 0) {
+										oPaginatedData.scrollRightEnabled = false;
+										oPaginatedData.scrollLeftEnabled = true;
+									} else {
+										oPaginatedData.scrollRightEnabled = false;
+										oPaginatedData.scrollLeftEnabled = false;
+									}
+								} else {
+									if (oPaginatedData.skipCount > 0) {
+										oPaginatedData.scrollRightEnabled = true;
+										oPaginatedData.scrollLeftEnabled = true;
+									} else {
+										oPaginatedData.scrollRightEnabled = true;
+										oPaginatedData.scrollLeftEnabled = false;
+									}
 								}
 								this.getView().getModel("HeaderBlockModel").setProperty("/count", oData.data.length);
 								oData.data.map(function (data) {

@@ -75,7 +75,13 @@ sap.ui.define([
 			oFilterModel.refresh();
 			this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			this.oFragmentList = [];
-
+			this.getView().setModel(new JSONModel({
+				skipCount: 0,
+				maxCount: 20,
+				scrollLeftEnabled: false,
+				scrollRightEnabled: false,
+				pages: []
+			}), "paginatedModel");
 			this.getView().setBusy(true);
 			Promise.all([this.formatter.fetchUserInfo.call(this)]).then(function (oRes) {
 				var oUserData = this.getView().getModel("UserInfo").getData();
@@ -518,6 +524,24 @@ sap.ui.define([
 			var oFilterModel = this.getView().getModel("filterModel");
 			oFilterModel.setData({});
 			oFilterModel.updateBindings(true);
+		},
+		onScrollLeft: function (oEvent) {
+			var oPaginatedModel = this.getView().getModel("paginatedModel");
+			var oPaginatedData = oPaginatedModel.getData();
+			oPaginatedData.skipCount = oPaginatedData.skipCount < oPaginatedData.maxCount ? 0 : oPaginatedData.skipCount - oPaginatedData.maxCount;
+			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
+				oPaginatedModel.refresh();
+				this.getView().setBusy(false);
+			}.bind(this));
+		},
+		onScrollRight: function (oEvent) {
+			var oPaginatedModel = this.getView().getModel("paginatedModel");
+			var oPaginatedData = oPaginatedModel.getData();
+			oPaginatedData.skipCount = oPaginatedData.skipCount + oPaginatedData.maxCount;
+			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
+				oPaginatedModel.refresh();
+				this.getView().setBusy(false);
+			}.bind(this));
 		}
 	});
 
