@@ -116,9 +116,18 @@ sap.ui.define([
 			var sUrl = "/DKSHJavaService/taskSubmit/getSalesBlockOrder/";
 			return new Promise(
 				function (resolve, reject) {
-					this.getView().getModel("HeaderBlockModel").loadData(sUrl, JSON.stringify(oReqPayload), true, "POST", false, false, oHeader).then(
+					var oApi = new JSONModel({});
+					oApi.loadData(sUrl, JSON.stringify(oReqPayload), true, "POST", false, false, oHeader).then(
 							function (oRes) {
+								var oResponse = oApi.getData();
 								var oData = this.getView().getModel("HeaderBlockModel").getData();
+								if(oResponse.data.hasOwnProperty("blockData")){
+									oData.data = oResponse.data.blockData;
+									oData.count = oResponse.data.totalCount;
+								}else{
+									oData.data = oResponse.data;
+									oData.count = oResponse.data.length || 0;
+								}
 								oUserMangement = this.getView().getModel("UserManagement");
 
 								// No data found
@@ -147,7 +156,7 @@ sap.ui.define([
 										oPaginatedData.scrollLeftEnabled = false;
 									}
 								}
-								this.getView().getModel("HeaderBlockModel").setProperty("/count", oData.data.length);
+								// this.getView().getModel("HeaderBlockModel").setProperty("/count", oData.data.length);
 								oData.data.map(function (data) {
 									data.creationDate = new Date(data.salesOrderDateTxt);
 									Object.assign(data, {
