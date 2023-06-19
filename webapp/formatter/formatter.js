@@ -121,39 +121,50 @@ sap.ui.define([
 							function (oRes) {
 								var oResponse = oApi.getData();
 								var oData = this.getView().getModel("HeaderBlockModel").getData();
-								if(oResponse.data.hasOwnProperty("blockData")){
+								if (oResponse.data.hasOwnProperty("blockData")) {
 									oData.data = oResponse.data.blockData;
-									oData.count = oResponse.data.totalCount;
-								}else{
-									oData.data = oResponse.data;
+									OData.count = oResponse.data.totalCount;
+								} else {
+									oData.data = oResponse.data || [];
 									oData.count = oResponse.data.length || 0;
 								}
 								oUserMangement = this.getView().getModel("UserManagement");
-
 								// No data found
 								if (oData.data.length === 0 || !oData) {
 									if (oPaginatedData.skipCount > 0) {
 										oPaginatedData.scrollRightEnabled = false;
 										oPaginatedData.scrollLeftEnabled = true;
+										oPaginatedData.firstPageEnabled = true;
+										oPaginatedData.lastPageEnabled = false;
 									} else {
 										oPaginatedData.scrollRightEnabled = false;
 										oPaginatedData.scrollLeftEnabled = false;
+										oPaginatedData.firstPageEnabled = false;
+										oPaginatedData.lastPageEnabled = false;
 									}
 								} else if (oData.data.length < oPaginatedData.maxCount) {
 									if (oPaginatedData.skipCount > 0) {
 										oPaginatedData.scrollRightEnabled = false;
 										oPaginatedData.scrollLeftEnabled = true;
+										oPaginatedData.firstPageEnabled = true;
+										oPaginatedData.lastPageEnabled = false;
 									} else {
 										oPaginatedData.scrollRightEnabled = false;
 										oPaginatedData.scrollLeftEnabled = false;
+										oPaginatedData.firstPageEnabled = false;
+										oPaginatedData.lastPageEnabled = false;
 									}
 								} else {
 									if (oPaginatedData.skipCount > 0) {
 										oPaginatedData.scrollRightEnabled = true;
 										oPaginatedData.scrollLeftEnabled = true;
+										oPaginatedData.firstPageEnabled = true;
+										oPaginatedData.lastPageEnabled = true;
 									} else {
 										oPaginatedData.scrollRightEnabled = true;
 										oPaginatedData.scrollLeftEnabled = false;
+										oPaginatedData.firstPageEnabled = false;
+										oPaginatedData.lastPageEnabled = true;
 									}
 								}
 								// this.getView().getModel("HeaderBlockModel").setProperty("/count", oData.data.length);
