@@ -557,8 +557,8 @@ sap.ui.define([
 		onPageClick: function (oEvent){
 			var oPaginatedModel = this.getView().getModel("paginatedModel");
 			var oPaginatedData = oPaginatedModel.getData();
-			var oBindingContext = oEvent.getSource().getBindingContext();
-			oPaginatedData.skipCount = oBindingContext.getData().text * oPaginatedData.maxCount;
+			var sText = oEvent.getSource().getProperty("text");
+			oPaginatedData.skipCount = parseInt(sText) * oPaginatedData.maxCount;
 			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
 				this.getView().setBusy(false);
 			}.bind(this));
