@@ -209,6 +209,9 @@ sap.ui.define([
 		},
 		// On Search data
 		onSearchSalesHeader: function (oEvent, oFilterSaleOrder) {
+			var oPaginatedModel = this.getView().getModel("paginatedModel");
+			var oPaginatedData = oPaginatedModel.getData();
+			oPaginatedData.skipCount = 0;
 			this.formatter.fetchSaleOrder.call(this).then(function () {
 				this.getView().setBusy(false);
 			}.bind(this));
