@@ -535,7 +535,6 @@ sap.ui.define([
 			var oPaginatedData = oPaginatedModel.getData();
 			oPaginatedData.skipCount = oPaginatedData.skipCount < oPaginatedData.maxCount ? 0 : oPaginatedData.skipCount - oPaginatedData.maxCount;
 			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
-				oPaginatedModel.refresh();
 				this.getView().setBusy(false);
 			}.bind(this));
 		},
@@ -544,7 +543,6 @@ sap.ui.define([
 			var oPaginatedData = oPaginatedModel.getData();
 			oPaginatedData.skipCount = oPaginatedData.skipCount + oPaginatedData.maxCount;
 			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
-				oPaginatedModel.refresh();
 				this.getView().setBusy(false);
 			}.bind(this));
 		},
@@ -553,12 +551,17 @@ sap.ui.define([
 			var oPaginatedData = oPaginatedModel.getData();
 			oPaginatedData.skipCount = 0;
 			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
-				oPaginatedModel.refresh();
 				this.getView().setBusy(false);
 			}.bind(this));
 		},
 		onPageClick: function (oEvent){
-			
+			var oPaginatedModel = this.getView().getModel("paginatedModel");
+			var oPaginatedData = oPaginatedModel.getData();
+			var oBindingContext = oEvent.getSource().getBindingContext();
+			oPaginatedData.skipCount = oBindingContext.getData().text * oPaginatedData.maxCount;
+			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
+				this.getView().setBusy(false);
+			}.bind(this));
 		},
 		onLastPage: function (oEvent) {
 			var oPaginatedModel = this.getView().getModel("paginatedModel");
@@ -567,7 +570,6 @@ sap.ui.define([
 			var oViewData = oViewModel.getData();
 			oPaginatedData.skipCount = oViewData.count === 0 ? 0 : Math.floor(oViewData.count / oPaginatedData.maxCount) * oPaginatedData.maxCount;
 			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
-				oPaginatedModel.refresh();
 				this.getView().setBusy(false);
 			}.bind(this));
 		}
