@@ -179,20 +179,20 @@ sap.ui.define([
 											enabled: iPageNumber !== i
 										});
 									}
-								} else if (iNumberOfPages - 5 <= iPageNumber) {
-									for (var i = 5; i > 0; i--) {
-										oPaginatedData.pages.push({
-											text: iNumberOfPages - i + 1
-											emphasized: iPageNumber === iNumberOfPages - i + 1,
-											enabled: iPageNumber !== iNumberOfPages - i + 1
-										});
-									}
 								} else if (iPageNumber < 3) {
 									for (var i = 1; i <= 5; i++) {
 										oPaginatedData.pages.push({
 											text: i,
 											emphasized: iPageNumber === i,
 											enabled: iPageNumber !== i
+										});
+									}
+								} else if (iNumberOfPages - 5 <= iPageNumber) {
+									for (var i = 5; i > 0; i--) {
+										oPaginatedData.pages.push({
+											text: iNumberOfPages - i + 1
+											emphasized: iPageNumber === iNumberOfPages - i + 1,
+											enabled: iPageNumber !== iNumberOfPages - i + 1
 										});
 									}
 								} else {
