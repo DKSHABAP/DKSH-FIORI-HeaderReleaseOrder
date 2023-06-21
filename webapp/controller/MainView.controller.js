@@ -568,7 +568,8 @@ sap.ui.define([
 			var oPaginatedData = oPaginatedModel.getData();
 			var oViewModel = this.getView().getModel("HeaderBlockModel");
 			var oViewData = oViewModel.getData();
-			oPaginatedData.skipCount = oViewData.count === 0 ? 0 : Math.floor(oViewData.count / oPaginatedData.maxCount) * oPaginatedData.maxCount;
+			oPaginatedData.skipCount = (Math.floor(oViewData.count / oPaginatedData.maxCount) - 1 + (oViewData.count % oPaginatedData.maxCount ?
+				1 : 0)) * oPaginatedData.maxCount;
 			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
 				this.getView().setBusy(false);
 			}.bind(this));
