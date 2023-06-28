@@ -6,7 +6,8 @@ sap.ui.define([
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
 	"sap/m/MessageBox",
-	"sap/m/MessageToast"
+	"sap/m/MessageToast",
+	"dksh/connectclient/itemblockorder/controller/EditableConfig"
 ], function (BaseController, JSONModel, Fragment, Sorter, Filter, FilterOperator, MessageBox, MessageToast) {
 	"use strict";
 	var sResponsivePaddingClasses = "sapUiResponsivePadding--header sapUiResponsivePadding--content sapUiResponsivePadding--footer";
@@ -65,10 +66,10 @@ sap.ui.define([
 				if (oQuery.sdnz) {
 					oFilterData.salesDocNumEnd = oQuery.sdnz;
 				}
-				if(oQuery.sdda) {
+				if (oQuery.sdda) {
 					oFilterData.initialDate = oQuery.sdda;
 				}
-				if(oQuery.sddz) {
+				if (oQuery.sddz) {
 					oFilterData.endDate = oQuery.sddz;
 				}
 			}
@@ -85,7 +86,18 @@ sap.ui.define([
 				pages: []
 			}), "paginatedModel");
 			this.getView().setBusy(true);
-			Promise.all([this.formatter.fetchUserInfo.call(this)]).then(function (oRes) {
+			var oPaging = new Promise(function (fnResolve) {
+				var oPaginatedModel = this.getView().getModel("paginatedModel");
+				var oPaginatedData = oPaginatedModel.getData();
+				this._oEditableConfig.getGiven({
+					module: "Fiori",
+					settingName: "Header Release Order Pagination"
+				}).then(function (aWhen) {
+					this._oEditableConfig.runGWT(aWhen, oPaginatedData, false);
+					fnResolve(oPaginatedData);
+				}.bind(this))
+			}.bind(this));
+			Promise.all([this.formatter.fetchUserInfo.call(this), oPaging]).then(function (oRes) {
 				var oUserData = this.getView().getModel("UserInfo").getData();
 				var fnReturnPayload = function (appId) {
 					return {
@@ -554,11 +566,11 @@ sap.ui.define([
 				this.getView().setBusy(false);
 			}.bind(this));
 		},
-		onPageClick: function (oEvent){
+		onPageClick: function (oEvent) {
 			var oPaginatedModel = this.getView().getModel("paginatedModel");
 			var oPaginatedData = oPaginatedModel.getData();
 			var sText = oEvent.getSource().getProperty("text");
-			oPaginatedData.skipCount = ( parseInt(sText) - 1 ) * oPaginatedData.maxCount;
+			oPaginatedData.skipCount = (parseInt(sText) - 1) * oPaginatedData.maxCount;
 			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
 				this.getView().setBusy(false);
 			}.bind(this));
