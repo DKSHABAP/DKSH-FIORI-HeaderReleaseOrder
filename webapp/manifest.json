@@ -20,6 +20,13 @@
 				"settings": {
 					"localUri": "localService/ZDKSH_CC_HDR_ITEM_RELEASE_SRV/metadata.xml"
 				}
+			},
+			"Setup": {
+				"uri": "/dkshcc/Setup.xsodata/",
+				"type": "OData",
+				"settings": {
+					"localUri": "localService/Setup/metadata.xml"
+				}
 			}
 		}
 	},
@@ -105,14 +112,23 @@
 				},
 				"dataSource": "ZDKSH_CC_HDR_ITEM_RELEASE_SRV",
 				"preload": true
+			},
+			"Setup": {
+				"type": "sap.ui.model.odata.v2.ODataModel",
+				"settings": {
+					"defaultOperationMode": "Server",
+					"defaultBindingMode": "TwoWay",
+					"defaultCountMode": "None",
+					"useBatch": false
+				},
+				"dataSource": "Setup",
+				"preload": true
 			}
 		},
 		"resources": {
-			"css": [
-				{
-					"uri": "css/style.css"
-				}
-			]
+			"css": [{
+				"uri": "css/style.css"
+			}]
 		},
 		"routing": {
 			"config": {
@@ -127,15 +143,13 @@
 					"target": []
 				}
 			},
-			"routes": [
-				{
-					"name": "MainView",
-					"pattern": ":?query:",
-					"target": [
-						"MainView"
-					]
-				}
-			],
+			"routes": [{
+				"name": "MainView",
+				"pattern": ":?query:",
+				"target": [
+					"MainView"
+				]
+			}],
 			"targets": {
 				"MainView": {
 					"viewType": "XML",

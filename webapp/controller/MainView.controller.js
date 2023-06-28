@@ -8,7 +8,7 @@ sap.ui.define([
 	"sap/m/MessageBox",
 	"sap/m/MessageToast",
 	"dksh/connectclient/itemblockorder/controller/EditableConfig"
-], function (BaseController, JSONModel, Fragment, Sorter, Filter, FilterOperator, MessageBox, MessageToast) {
+], function (BaseController, JSONModel, Fragment, Sorter, Filter, FilterOperator, MessageBox, MessageToast, EditableConfig) {
 	"use strict";
 	var sResponsivePaddingClasses = "sapUiResponsivePadding--header sapUiResponsivePadding--content sapUiResponsivePadding--footer";
 
@@ -67,15 +67,16 @@ sap.ui.define([
 					oFilterData.salesDocNumEnd = oQuery.sdnz;
 				}
 				if (oQuery.sdda) {
-					oFilterData.initialDate = oQuery.sdda;
+					oFilterData.initialDate = new Date(oQuery.sdda);
 				}
 				if (oQuery.sddz) {
-					oFilterData.endDate = oQuery.sddz;
+					oFilterData.endDate = new Date(oQuery.sddz);
 				}
 			}
 			oFilterModel.refresh();
 			this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			this.oFragmentList = [];
+			this._oEditableConfig = new EditableConfig(this.getOwnerComponent().getModel("Setup"));
 			this.getView().setModel(new JSONModel({
 				skipCount: 0,
 				maxCount: 20,
@@ -118,6 +119,9 @@ sap.ui.define([
 					Object.assign(this.formatter.setNumericAndSort(_oRes[0], ["sequence"]), this._returnPersDefault());
 					this.getView().getModel("SearchHelpPersonalization").refresh();
 					Object.assign(_oRes[1], this._returnPersDefault());
+					if (oQuery) {
+						this.onExpandAll(null);
+					}
 					this.getView().setBusy(false);
 				}.bind(this)).catch(function (oErr) {
 					this._displayError(oErr);
