@@ -65,11 +65,11 @@ sap.ui.define([
 				if (oQuery.sdnz) {
 					oFilterData.salesDocNumEnd = oQuery.sdnz;
 				}
-				if(oQuery.sdda) {
-					oFilterData.initialDate = oQuery.sdda;
+				if (oQuery.sdda) {
+					oFilterData.initialDate = new Date(oQuery.sdda);
 				}
-				if(oQuery.sddz) {
-					oFilterData.endDate = oQuery.sddz;
+				if (oQuery.sddz) {
+					oFilterData.endDate = new Date(oQuery.sddz);
 				}
 			}
 			oFilterModel.refresh();
@@ -106,6 +106,9 @@ sap.ui.define([
 					Object.assign(this.formatter.setNumericAndSort(_oRes[0], ["sequence"]), this._returnPersDefault());
 					this.getView().getModel("SearchHelpPersonalization").refresh();
 					Object.assign(_oRes[1], this._returnPersDefault());
+					if(oQuery){
+						this.onExpandAll(null);
+					}
 					this.getView().setBusy(false);
 				}.bind(this)).catch(function (oErr) {
 					this._displayError(oErr);
