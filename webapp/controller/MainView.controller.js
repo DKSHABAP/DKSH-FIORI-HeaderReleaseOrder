@@ -6,8 +6,9 @@ sap.ui.define([
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
 	"sap/m/MessageBox",
-	"sap/m/MessageToast"
-], function (BaseController, JSONModel, Fragment, Sorter, Filter, FilterOperator, MessageBox, MessageToast) {
+	"sap/m/MessageToast",
+	"dksh/connectclient/itemblockorder/controller/EditableConfig"
+], function (BaseController, JSONModel, Fragment, Sorter, Filter, FilterOperator, MessageBox, MessageToast, EditableConfig) {
 	"use strict";
 	var sResponsivePaddingClasses = "sapUiResponsivePadding--header sapUiResponsivePadding--content sapUiResponsivePadding--footer";
 
@@ -75,6 +76,7 @@ sap.ui.define([
 			oFilterModel.refresh();
 			this.oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			this.oFragmentList = [];
+			this._oEditableConfig = new EditableConfig(this.getOwnerComponent().getModel("Setup"));
 			this.getView().setModel(new JSONModel({
 				skipCount: 0,
 				maxCount: 20,
@@ -85,7 +87,18 @@ sap.ui.define([
 				pages: []
 			}), "paginatedModel");
 			this.getView().setBusy(true);
-			Promise.all([this.formatter.fetchUserInfo.call(this)]).then(function (oRes) {
+			var oPaging = new Promise(function (fnResolve) {
+				var oPaginatedModel = this.getView().getModel("paginatedModel");
+				var oPaginatedData = oPaginatedModel.getData();
+				this._oEditableConfig.getGiven({
+					module: "Fiori",
+					settingName: "Header Release Order Pagination"
+				}).then(function (aWhen) {
+					this._oEditableConfig.runGWT(aWhen, oPaginatedData, false);
+					fnResolve(oPaginatedData);
+				}.bind(this))
+			}.bind(this));
+			Promise.all([this.formatter.fetchUserInfo.call(this), oPaging]).then(function (oRes) {
 				var oUserData = this.getView().getModel("UserInfo").getData();
 				var fnReturnPayload = function (appId) {
 					return {
@@ -106,7 +119,7 @@ sap.ui.define([
 					Object.assign(this.formatter.setNumericAndSort(_oRes[0], ["sequence"]), this._returnPersDefault());
 					this.getView().getModel("SearchHelpPersonalization").refresh();
 					Object.assign(_oRes[1], this._returnPersDefault());
-					if(oQuery){
+					if (oQuery) {
 						this.onExpandAll(null);
 					}
 					this.getView().setBusy(false);
@@ -557,11 +570,11 @@ sap.ui.define([
 				this.getView().setBusy(false);
 			}.bind(this));
 		},
-		onPageClick: function (oEvent){
+		onPageClick: function (oEvent) {
 			var oPaginatedModel = this.getView().getModel("paginatedModel");
 			var oPaginatedData = oPaginatedModel.getData();
 			var sText = oEvent.getSource().getProperty("text");
-			oPaginatedData.skipCount = ( parseInt(sText) - 1 ) * oPaginatedData.maxCount;
+			oPaginatedData.skipCount = (parseInt(sText) - 1) * oPaginatedData.maxCount;
 			this.formatter.fetchSaleOrder.call(this).then(function (oRes) {
 				this.getView().setBusy(false);
 			}.bind(this));
