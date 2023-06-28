@@ -108,9 +108,11 @@
 			}
 		},
 		"resources": {
-			"css": [{
-				"uri": "css/style.css"
-			}]
+			"css": [
+				{
+					"uri": "css/style.css"
+				}
+			]
 		},
 		"routing": {
 			"config": {
@@ -125,11 +127,15 @@
 					"target": []
 				}
 			},
-			"routes": [{
-				"name": "MainView",
-				"pattern": ":?query:",
-				"target": ["MainView"]
-			}],
+			"routes": [
+				{
+					"name": "MainView",
+					"pattern": ":?query:",
+					"target": [
+						"MainView"
+					]
+				}
+			],
 			"targets": {
 				"MainView": {
 					"viewType": "XML",
