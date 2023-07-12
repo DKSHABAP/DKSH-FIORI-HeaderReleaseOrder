@@ -84,7 +84,9 @@ sap.ui.define([
 				scrollRightEnabled: false,
 				firstPageEnabled: false,
 				lastPageEnabled: false,
-				pages: []
+				pages: [],
+				orderBy: 'salesOrderNum',
+				orderType: 'DESC'
 			}), "paginatedModel");
 			this.getView().setBusy(true);
 			var oPaging = new Promise(function (fnResolve) {
